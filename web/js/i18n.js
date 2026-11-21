@@ -99,6 +99,7 @@ export const STRINGS = {
       "Ships may not touch, not even diagonally. A hit or a sink lets you shoot again. " +
       "Sinking a ship announces its length.",
     place_title: "{name}: place your fleet",
+    placed_count: "{n} of {total} ships placed",
     rotate: "Rotate",
     random: "Random",
     clear: "Clear",
@@ -294,6 +295,7 @@ export const STRINGS = {
       "Los barcos no pueden tocarse, ni en diagonal. Si tocas o hundes, repites turno. " +
       "Al hundir un barco se anuncia su longitud.",
     place_title: "{name}: coloca tu flota",
+    placed_count: "{n} de {total} barcos colocados",
     rotate: "Girar",
     random: "Aleatoria",
     clear: "Borrar",

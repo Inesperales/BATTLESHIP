@@ -3552,3 +3552,1018 @@ button.tiny.wide {
     opacity: 1;
   }
 }
+
+/* --- on deck: fleet placement and battle inside the captain's cabin -----------------------
+   The same room as the start screen stays behind these two screens (dimmed), and each one
+   is laid out on a large parchment sheet in a dark wooden frame with brass corners, under
+   a carved sign. Only looks: every control keeps its id, its place in the page and its
+   behaviour. */
+
+:root {
+  --deck-wood-hi: #8a5a2c;
+  --deck-wood: #5c3418;
+  --deck-wood-lo: #2e170a;
+  --deck-gold-hi: #f6dc92;
+  --deck-gold: #c89640;
+  --deck-gold-lo: #7a5418;
+  --deck-parch-hi: #fbf1d9;
+  --deck-parch: #efdcae;
+  --deck-parch-lo: #d4b47a;
+  --deck-ink: #3b2412;
+  --deck-ink-soft: #6b4520;
+  --deck-red-hi: #d0402f;
+  --deck-red: #8a1f16;
+  --deck-red-lo: #5e130c;
+  --deck-serif: Georgia, "Times New Roman", serif;
+}
+
+/* The cabin behind: the room picture and the sea through its windows, as on the start
+   screen, covering the window and slightly blurred so the sheet stands out. */
+.deck-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: #140b05;
+}
+
+html:has(#app > .placement, #app > .game) {
+  background: #140b05;
+}
+
+body:has(#app > .placement, #app > .game) {
+  background: transparent;
+}
+
+body:has(#app > .placement, #app > .game)::after {
+  display: none;
+}
+
+body:has(#app > .placement, #app > .game) .deck-backdrop {
+  display: block;
+}
+
+.deck-scene {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100vw, 177.78vh);
+  aspect-ratio: 16 / 9;
+  transform: translate(-50%, -50%);
+  filter: blur(2px) brightness(0.62) saturate(1.05);
+}
+
+/* scene coordinates (1600 x 900) as percentages: the sea behind the stern windows… */
+.deck-sea {
+  position: absolute;
+  left: 26.875%;
+  top: 5.78%;
+  width: 46.25%;
+  height: 34.22%;
+  overflow: hidden;
+}
+
+.deck-sea .sea-view {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* …and the room picture, whose canvas starts at (-600, -500) and is 2800 x 1400. */
+.deck-room {
+  position: absolute;
+  left: -37.5%;
+  top: -55.56%;
+  width: 175%;
+  height: 155.56%;
+  max-width: none;
+}
+
+/* warm lantern light from the sides, darker towards the corners */
+.deck-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 30% 45% at 8% 30%, rgba(255, 170, 80, 0.16), transparent 70%),
+    radial-gradient(ellipse 30% 45% at 92% 30%, rgba(255, 170, 80, 0.16), transparent 70%),
+    radial-gradient(ellipse 80% 75% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.55));
+  animation: glow 4.2s ease-in-out infinite;
+}
+
+/* --- shared pieces: the sheet, the carved sign, red and wooden buttons --- */
+
+.deck-sheet {
+  position: relative;
+  z-index: 1;
+  color: var(--deck-ink);
+  background:
+    radial-gradient(ellipse at 14% 10%, rgba(255, 255, 255, 0.55), transparent 42%),
+    radial-gradient(ellipse at 88% 88%, rgba(150, 90, 30, 0.3), transparent 50%),
+    radial-gradient(ellipse at 72% 18%, rgba(160, 100, 40, 0.14), transparent 38%),
+    radial-gradient(ellipse at 22% 82%, rgba(160, 100, 40, 0.18), transparent 40%),
+    linear-gradient(160deg, var(--deck-parch-hi), var(--deck-parch) 55%, var(--deck-parch-lo));
+  border: 3px solid #5a2e12;
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 3px #2a1406,
+    0 0 0 6px var(--deck-gold),
+    0 0 0 10px #4a250f,
+    0 0 0 11px #1a0a03,
+    0 26px 60px rgba(0, 0, 0, 0.65),
+    inset 0 0 50px rgba(120, 70, 20, 0.3);
+  animation: deck-unroll 0.45s ease-out both;
+}
+
+/* brass brackets with a rivet at each corner */
+.deck-sheet::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  z-index: 3;
+  pointer-events: none;
+  --b: linear-gradient(180deg, var(--deck-gold-hi), var(--deck-gold) 50%, var(--deck-gold-lo));
+  --s: linear-gradient(90deg, var(--deck-gold-hi), var(--deck-gold) 50%, var(--deck-gold-lo));
+  background:
+    radial-gradient(circle, #5a3a0a 2.5px, transparent 3px) 9px 9px / 14px 14px no-repeat,
+    radial-gradient(circle, #5a3a0a 2.5px, transparent 3px) calc(100% - 9px) 9px / 14px 14px no-repeat,
+    radial-gradient(circle, #5a3a0a 2.5px, transparent 3px) 9px calc(100% - 9px) / 14px 14px no-repeat,
+    radial-gradient(circle, #5a3a0a 2.5px, transparent 3px) calc(100% - 9px) calc(100% - 9px) / 14px 14px no-repeat,
+    var(--b) top left / 56px 13px no-repeat,
+    var(--s) top left / 13px 56px no-repeat,
+    var(--b) top right / 56px 13px no-repeat,
+    var(--s) top right / 13px 56px no-repeat,
+    var(--b) bottom left / 56px 13px no-repeat,
+    var(--s) bottom left / 13px 56px no-repeat,
+    var(--b) bottom right / 56px 13px no-repeat,
+    var(--s) bottom right / 13px 56px no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+}
+
+@keyframes deck-unroll {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+}
+
+/* The screen's name carved on a board, like the title in the cabin. */
+.panel h2.deck-sign {
+  position: relative;
+  z-index: 4;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  margin: 0 auto -24px;
+  padding: 8px 64px 10px;
+  font: 44px/1.1 var(--title-font);
+  letter-spacing: 0.03em;
+  text-align: center;
+  color: #f0cf7a;
+  text-shadow: 0 2px 0 #2a1406, 0 0 18px rgba(255, 190, 90, 0.35);
+  background:
+    radial-gradient(circle, var(--deck-gold) 3.5px, transparent 4.5px) 18px 50% / 12px 12px no-repeat,
+    radial-gradient(circle, var(--deck-gold) 3.5px, transparent 4.5px) calc(100% - 18px) 50% / 12px 12px no-repeat,
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0 2px, transparent 2px 11px),
+    linear-gradient(180deg, #6b3f1d, #4a2913 55%, #3e2210);
+  border: 3px solid #1a0c04;
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 0 7px rgba(200, 150, 64, 0.0),
+    inset 0 0 0 2px rgba(200, 150, 64, 0.7),
+    0 12px 26px rgba(0, 0, 0, 0.6);
+}
+
+/* Red buttons edged in gold, with crossed cutlasses under the word (like the start button). */
+.deck-sheet .red-button {
+  display: grid;
+  justify-items: center;
+  gap: 0;
+  padding: 10px 34px 4px;
+  font: 40px/1 var(--title-font);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff1d0;
+  text-shadow: 0 2px 0 #3a0905;
+  background: linear-gradient(180deg, var(--deck-red-hi), var(--deck-red) 60%, var(--deck-red-lo));
+  border: 3px solid #e2b55a;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2px #7a140b, 0 0 0 3px #3a0904, 0 6px 0 #250602, 0 0 26px rgba(255, 130, 60, 0.35);
+}
+
+.deck-sheet .red-button:not(:disabled) {
+  animation: red-glow 2.6s ease-in-out infinite;
+}
+
+.deck-sheet .red-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 2px #7a140b, 0 0 0 3px #3a0904, 0 6px 0 #250602, 0 0 40px rgba(255, 150, 70, 0.7);
+}
+
+.deck-sheet .red-button:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: inset 0 0 0 2px #7a140b, 0 0 0 3px #3a0904, 0 2px 0 #250602;
+}
+
+.deck-sheet .red-button:disabled {
+  filter: grayscale(0.6) brightness(0.85);
+  opacity: 0.7;
+}
+
+@keyframes red-glow {
+  50% {
+    box-shadow: inset 0 0 0 2px #7a140b, 0 0 0 3px #3a0904, 0 6px 0 #250602, 0 0 38px rgba(255, 150, 70, 0.6);
+  }
+}
+
+.red-button .swords {
+  width: 100px;
+  height: 26px;
+  margin-top: 1px;
+}
+
+/* Wooden buttons with brass edges and gold lettering. */
+.deck-sheet .orders .buttons button,
+.game .controls #celebrate,
+.game .controls #menu {
+  padding: 8px 18px;
+  font: 20px/1 var(--title-font);
+  letter-spacing: 0.02em;
+  color: var(--deck-gold-hi);
+  text-shadow: 0 1px 0 #1a0a03;
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0 2px, transparent 2px 9px),
+    linear-gradient(180deg, var(--deck-wood-hi), var(--deck-wood) 60%, var(--deck-wood-lo));
+  border: 2px solid var(--deck-gold);
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px #2a1406, 0 3px 0 #1a0a03;
+}
+
+.deck-sheet .orders .buttons button:hover:not(:disabled),
+.game .controls #celebrate:hover,
+.game .controls #menu:hover {
+  border-color: var(--deck-gold-hi);
+  box-shadow: inset 0 0 0 1px #2a1406, 0 3px 0 #1a0a03, 0 0 12px rgba(255, 200, 90, 0.45);
+}
+
+/* A heading between two flourishes. */
+.ornate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--deck-ink);
+}
+
+.ornate .flourish {
+  flex: none;
+  width: 38px;
+  height: 12px;
+  color: var(--deck-ink-soft);
+}
+
+.ornate .flourish:last-child {
+  transform: scaleX(-1);
+}
+
+/* --- placing the fleet --- */
+
+.panel.placement {
+  max-width: 1220px;
+  margin: 2px auto 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.placement .place-layout.deck-sheet {
+  display: grid;
+  grid-template-columns: auto minmax(300px, 430px);
+  justify-content: center;
+  align-items: start;
+  gap: 40px;
+  padding: 46px 40px 24px;
+}
+
+@media (min-width: 861px) {
+  /* the board shrinks a little on short screens, so the whole sheet fits */
+  .placement .board-grid {
+    --cell: max(26px, min(40px, calc((100vw - 114px) / var(--size, 10)), calc((100svh - 300px) / var(--size, 10))));
+  }
+}
+
+.place-board-col {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.place-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  width: 100%;
+}
+
+.place-quill svg {
+  display: block;
+  width: 50px;
+  height: auto;
+}
+
+.place-compass .prop-svg {
+  display: block;
+  width: 88px;
+  height: auto;
+  filter: drop-shadow(0 4px 4px rgba(60, 30, 5, 0.4));
+}
+
+.placed-count {
+  margin: 0;
+  padding: 8px 28px;
+  font: italic 700 19px/1.1 var(--deck-serif);
+  color: var(--deck-ink);
+  background: linear-gradient(180deg, #fbf3df, #ecd8ad);
+  border: 1px solid #a7854e;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.45), 0 2px 4px rgba(90, 55, 20, 0.3);
+}
+
+/* the orders: straight on the sheet, no scroll of their own */
+.deck-sheet .orders {
+  max-width: none;
+  transform: none;
+  filter: none;
+  color: var(--deck-ink);
+}
+
+.deck-sheet .scroll-roll {
+  display: none;
+}
+
+.deck-sheet .orders .scroll-body {
+  padding: 0;
+  background: none;
+  border: 0;
+}
+
+.deck-sheet .orders .note {
+  margin: 0 0 12px;
+  padding: 9px 12px 9px 38px;
+  font: 700 16px/1.3 var(--deck-serif);
+  color: var(--deck-ink);
+  background: linear-gradient(180deg, #fffaf0, #f3e4c2);
+  border: 1.5px solid #a7854e;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(90, 55, 20, 0.2);
+}
+
+.deck-sheet .orders .note.warn {
+  color: var(--deck-red);
+  border-color: var(--deck-red);
+  background: linear-gradient(180deg, #fff0ea, #f6d9cd);
+}
+
+.deck-sheet .orders .note.ok {
+  color: #2f6b2a;
+  border-color: #2f6b2a;
+}
+
+.deck-sheet .orders h3.ornate {
+  margin: 4px 0 8px;
+  font: 30px/1.05 var(--title-font);
+}
+
+.deck-sheet .orders-list {
+  margin: 0;
+  padding: 0;
+  font: 15.5px/1.4 var(--deck-serif);
+}
+
+.deck-sheet .orders-list li {
+  position: relative;
+  padding: 3px 0 3px 22px;
+  border: 0;
+}
+
+.deck-sheet .orders-list li::before {
+  content: "◆";
+  position: absolute;
+  left: 3px;
+  top: 5px;
+  font-size: 11px;
+  color: var(--deck-ink-soft);
+}
+
+.deck-sheet .orders-hold {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(110, 70, 30, 0.35);
+}
+
+.deck-sheet .orders h4.ornate {
+  margin: 2px 0 10px;
+  font: 26px/1.05 var(--title-font);
+}
+
+.deck-sheet .orders .ship-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 10px;
+}
+
+.deck-sheet .orders .ship-pick {
+  justify-content: center;
+  gap: 10px;
+  padding: 7px 10px;
+  color: var(--deck-ink);
+  background: linear-gradient(180deg, #fffaf0, #ecd8ad);
+  border: 1px solid #a7854e;
+  border-radius: 8px;
+  box-shadow: 0 2px 0 rgba(90, 55, 20, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.deck-sheet .orders .ship-pick:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--deck-gold);
+  box-shadow: 0 4px 0 rgba(90, 55, 20, 0.3), 0 0 12px rgba(255, 200, 80, 0.4);
+}
+
+.deck-sheet .orders .ship-pick.selected {
+  border-color: #e7b445;
+  background: linear-gradient(180deg, #fff6da, #f3dc9c);
+  box-shadow: 0 0 0 3px #f4c95c, 0 0 18px rgba(255, 200, 80, 0.65);
+}
+
+.deck-sheet .orders .ship-pick.placed {
+  opacity: 0.55;
+}
+
+.deck-sheet .ship-len {
+  font: 26px/1 var(--title-font);
+  color: var(--deck-ink);
+}
+
+.deck-sheet .orders .ship-pick {
+  position: relative;
+}
+
+/* "✓ afloat" as a small tag on the card's corner, so placed cards keep their height */
+.deck-sheet .orders .ship-pick small {
+  position: absolute;
+  top: -8px;
+  right: 6px;
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+  color: #fff;
+  background: #2f6b2a;
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.deck-sheet .orders .orient {
+  margin: 8px 0 0;
+  font: italic 600 14px/1.2 var(--deck-serif);
+  color: var(--deck-ink-soft);
+}
+
+.deck-sheet .orders .buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 12px 0 4px;
+}
+
+.deck-sheet .orders #ready {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* --- the battle --- */
+
+.game {
+  position: relative;
+  max-width: 1320px;
+  margin: 2px auto 0;
+}
+
+.game-sheet {
+  padding: 20px 28px 18px;
+}
+
+body:has(#app > .placement, #app > .game) main {
+  padding-bottom: 24px;
+}
+
+@media (min-width: 1000px) {
+  .game .arena {
+    grid-template-columns: 1fr minmax(170px, 220px) 1fr;
+  }
+
+  .game .board-grid {
+    --cell: max(24px, min(42px, calc((100vw - 460px) / (2 * var(--size, 10))), calc((100svh - 490px) / var(--size, 10))));
+  }
+}
+
+@media (min-width: 1200px) and (min-height: 1000px) {
+  /* tall screens: the placement board grows too */
+  .placement .board-grid {
+    --cell: min(46px, calc((100vw - 114px) / var(--size, 10)), calc((100svh - 420px) / var(--size, 10)));
+  }
+}
+
+/* "Your fleet" and "Enemy waters" on carved wooden plaques; the hat marks who shoots */
+.game .nameplate {
+  padding-top: 32px;
+  margin-bottom: 10px;
+}
+
+.plaque {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 34px 7px 22px;
+  color: var(--deck-gold-hi);
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0 2px, transparent 2px 10px),
+    linear-gradient(180deg, var(--deck-wood-hi), var(--deck-wood) 55%, var(--deck-wood-lo));
+  border: 2px solid #1f0e04;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2px var(--deck-gold), 0 6px 14px rgba(0, 0, 0, 0.45);
+  transition: box-shadow 0.35s, transform 0.35s;
+}
+
+.plaque-icon {
+  display: block;
+  flex: none;
+  width: 42px;
+  height: 34px;
+}
+
+.plaque-text {
+  display: grid;
+  text-align: left;
+}
+
+.game .nameplate .caption {
+  margin: 0;
+  font: 27px/1.05 var(--title-font);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--deck-gold-hi);
+  text-shadow: 0 2px 0 #1a0a03;
+}
+
+.game .pname,
+.game .nameplate.active .pname {
+  padding: 0;
+  font: 600 14px/1.25 "Nunito", system-ui, sans-serif;
+  color: #f3e2bf;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+.game .nameplate.active .plaque {
+  transform: scale(1.04);
+  box-shadow: inset 0 0 0 2px var(--deck-gold-hi), 0 0 20px rgba(255, 200, 90, 0.75), 0 6px 14px rgba(0, 0, 0, 0.45);
+}
+
+/* "Afloat: 5" on a wooden bar under each board */
+.game .afloat {
+  gap: 10px;
+  margin-top: 12px;
+  padding: 5px 16px;
+  color: #f3e2bf;
+  background: linear-gradient(180deg, var(--deck-wood-hi), var(--deck-wood) 55%, var(--deck-wood-lo));
+  border: 2px solid #1f0e04;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px var(--deck-gold), 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.game .afloat-label {
+  padding-right: 12px;
+  font: 20px/1 var(--title-font);
+  color: var(--deck-gold-hi);
+  text-shadow: 0 1px 0 #1a0a03;
+  border-right: 1px solid rgba(217, 164, 65, 0.45);
+}
+
+.afloat-count {
+  font-weight: normal;
+}
+
+.afloat-count::before {
+  content: ":";
+  margin-right: 0.3em;
+}
+
+.game .shots-count {
+  color: #f3e2bf;
+  font-weight: 700;
+}
+
+/* the parrot on its brass stand, between the boards */
+.commentator-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  min-width: 0;
+}
+
+.game .commentator {
+  height: 330px;
+  width: 100%;
+}
+
+.game .perch rect {
+  fill: url(#dk-st-brass-v);
+  stroke: #5a3a0a;
+}
+
+.game .perch path {
+  stroke: #fff1c0;
+  opacity: 0.5;
+}
+
+.commentator-col .stand {
+  display: block;
+  width: 150px;
+  height: auto;
+  margin-top: -6px;
+}
+
+/* its speech bubble, on parchment with an inked edge */
+.game .bubble {
+  --bubble-bg: #f8ebcb;
+  color: #2a1406;
+  border: 3px solid #5a3418;
+  border-radius: 46px / 40px;
+  font: 31px/1.02 var(--title-font);
+  letter-spacing: 0.01em;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4), inset 0 0 18px rgba(150, 100, 40, 0.25);
+}
+
+.game .bubble::before {
+  border-top-color: #5a3418;
+}
+
+.game .bubble.mood-sunk {
+  --bubble-bg: #fbe3a0;
+  color: #8a1a0a;
+  font-size: 32px;
+  border-width: 3px;
+  box-shadow: 0 0 22px rgba(255, 200, 60, 0.75), 0 8px 18px rgba(0, 0, 0, 0.4);
+}
+
+.game .bubble.mood-miss {
+  --bubble-bg: #e9e3d3;
+  color: #24384a;
+}
+
+.game .bubble-sub {
+  font-family: var(--deck-serif);
+  color: #5a3a1a;
+}
+
+/* the controls under the boards, on a lighter parchment strip */
+.game .game-side {
+  max-width: none;
+  margin: 16px 0 0;
+}
+
+.game .controls {
+  padding: 9px 16px;
+  color: var(--deck-ink);
+  background: linear-gradient(180deg, #fbf1d9, #ecd8ad);
+  border: 2px solid #a7854e;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.35), 0 2px 6px rgba(90, 55, 20, 0.25);
+}
+
+.game .controls .toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: 700 16.5px/1.2 var(--deck-serif);
+  cursor: pointer;
+}
+
+.game .controls input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  background: #fffaf0;
+  border: 2px solid #6b3a14;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 2px rgba(90, 55, 20, 0.3);
+  cursor: pointer;
+}
+
+.game .controls input[type="checkbox"]:checked {
+  background: linear-gradient(180deg, #8a4f20, #5c3418);
+}
+
+.game .controls input[type="checkbox"]:checked::after {
+  content: "";
+  width: 6px;
+  height: 11px;
+  margin-top: -2px;
+  border: solid #fff3d6;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+
+.game #abandon,
+.game #again {
+  padding: 7px 26px;
+  font: 22px/1 var(--title-font);
+  letter-spacing: 0.03em;
+  color: #fff1d0;
+  text-shadow: 0 1px 0 #3a0905;
+  background: linear-gradient(180deg, var(--deck-red-hi), var(--deck-red) 60%, var(--deck-red-lo));
+  border: 2px solid #e2b55a;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px #7a140b, 0 3px 0 #250602;
+}
+
+.game #abandon:hover,
+.game #again:hover {
+  box-shadow: inset 0 0 0 1px #7a140b, 0 3px 0 #250602, 0 0 16px rgba(255, 150, 70, 0.6);
+}
+
+.game .game-side .help {
+  margin: 8px 4px 0;
+  color: #5a3a1a;
+  font: italic 600 14px/1.35 var(--deck-serif);
+}
+
+/* the ship's log, on a leather strip with its latest entry */
+.game .log {
+  margin-top: 12px;
+  padding: 7px 16px;
+  color: #f3e2bf;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(255, 255, 255, 0.08), transparent 60%),
+    linear-gradient(180deg, #6a2a17, #4a1a0d 55%, #2e0f07);
+  border: 2px solid #1f0e04;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px var(--deck-gold), 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.game .log summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  list-style: none;
+  color: var(--deck-gold-hi);
+}
+
+.game .log summary::-webkit-details-marker {
+  display: none;
+}
+
+.game .log summary::before {
+  content: "▸";
+  flex: none;
+  transition: transform 0.2s;
+}
+
+.game .log[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.log-title {
+  flex: none;
+  padding-right: 14px;
+  font: 21px/1 var(--title-font);
+  border-right: 1px solid rgba(217, 164, 65, 0.5);
+}
+
+.log-last {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: italic 600 16px/1.3 var(--deck-serif);
+  color: #f6e5c2;
+}
+
+.game .log ol {
+  color: #e9d7b0;
+  border-top: 1px solid rgba(217, 164, 65, 0.3);
+  padding-top: 6px;
+}
+
+.game .log li:first-child {
+  color: #fff3d6;
+}
+
+/* a compass and a spyglass resting at the edges, on wide screens */
+.edge-decor {
+  display: none;
+}
+
+@media (min-width: 1480px) {
+  .edge-decor {
+    display: block;
+  }
+
+  .edge-decor > span {
+    position: fixed;
+    z-index: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.55));
+  }
+
+  .decor-compass {
+    left: 12px;
+    bottom: 12px;
+    width: 150px;
+  }
+
+  .decor-spyglass {
+    right: 6px;
+    bottom: 26px;
+    width: 250px;
+  }
+
+  .edge-decor .prop-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+/* --- on deck, on short screens (laptops): a tighter sheet so it fits without scrolling --- */
+
+@media (max-height: 860px) and (min-width: 861px) {
+  .panel h2.deck-sign {
+    padding: 5px 56px 7px;
+    font-size: 36px;
+  }
+
+  .placement .place-layout.deck-sheet {
+    padding: 36px 34px 18px;
+  }
+
+  .place-board-col {
+    gap: 8px;
+  }
+
+  .place-compass .prop-svg {
+    width: 70px;
+  }
+
+  .place-quill svg {
+    width: 40px;
+  }
+
+  .deck-sheet .orders .note {
+    margin-bottom: 8px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-size: 15px;
+  }
+
+  .deck-sheet .orders h3.ornate {
+    margin: 2px 0 4px;
+    font-size: 26px;
+  }
+
+  .deck-sheet .orders-list {
+    font-size: 14px;
+    line-height: 1.3;
+  }
+
+  .deck-sheet .orders-list li {
+    padding: 1px 0 1px 20px;
+  }
+
+  .deck-sheet .orders-list li::before {
+    top: 3px;
+  }
+
+  .deck-sheet .orders-hold {
+    margin-top: 8px;
+    padding-top: 6px;
+  }
+
+  .deck-sheet .orders h4.ornate {
+    margin-bottom: 8px;
+    font-size: 23px;
+  }
+
+  .deck-sheet .orders .ship-pick {
+    padding: 4px 8px;
+  }
+
+  .deck-sheet .orders .buttons {
+    margin-top: 8px;
+  }
+
+  .deck-sheet .orders #ready {
+    margin-top: 8px;
+    padding-top: 6px;
+    font-size: 34px;
+  }
+
+  .game .nameplate {
+    padding-top: 28px;
+    margin-bottom: 8px;
+  }
+
+  .game .commentator {
+    height: 290px;
+  }
+
+  .game-sheet {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+}
+
+/* --- on deck, on narrower screens --- */
+
+@media (max-width: 999px) {
+  .game-sheet {
+    padding: 16px 14px 14px;
+  }
+
+  .commentator-col {
+    align-self: stretch;
+    align-items: stretch;
+  }
+
+  .game .commentator {
+    height: 112px;
+  }
+
+  .commentator-col .stand {
+    display: none;
+  }
+
+  .game .bubble {
+    font-size: 24px;
+  }
+
+  .game .bubble::before {
+    border-color: transparent #5a3418 transparent transparent;
+  }
+}
+
+@media (max-width: 860px) {
+  .placement .place-layout.deck-sheet {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 22px;
+    padding: 40px 16px 20px;
+  }
+
+  .deck-sheet .orders {
+    width: 100%;
+  }
+
+  .place-quill,
+  .place-compass {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .panel h2.deck-sign {
+    padding: 6px 30px 8px;
+    font-size: 30px;
+  }
+
+  .deck-sheet .red-button {
+    font-size: 30px;
+  }
+
+  .plaque {
+    padding: 6px 18px 6px 12px;
+  }
+
+  .game .nameplate .caption {
+    font-size: 22px;
+  }
+
+  .log-last {
+    display: none;
+  }
+}

@@ -24,6 +24,7 @@ import {
   SPEAKER_ON,
 } from "./cabin.js";
 import { MAX_COLUMNS } from "./coords.js";
+import { HELM_ICON, QUILL, SHIP_ICON, STAND, SWORDS, ornate } from "./deck-art.js";
 import { closeEndScreen, showEndScreen } from "./endscreen.js";
 import { bubbles, explode, launchMissile, splash } from "./fx.js";
 import { esc, th } from "./html.js";
@@ -1116,20 +1117,28 @@ function placementScreen(i) {
         const placed = Boolean(ed.placement[k]);
         const classes = ["ship-pick", placed ? "placed" : "", ed.selected === k ? "selected" : ""];
         const afloat = placed ? `<small>✓ ${th("in_water")}</small>` : "";
-        return `<button class="${classes.join(" ")}" data-k="${k}">${miniShip(length)}<span>${length}</span>${afloat}</button>`;
+        return `<button class="${classes.join(" ")}" data-k="${k}">${miniShip(length)}<span class="ship-len">${length}</span>${afloat}</button>`;
       })
       .join("");
+    const placed = ed.placement.filter(Boolean).length;
     app.innerHTML = `
       <section class="panel placement">
-        <h2>${th("place_title", { name: side.name })}</h2>
-        <div class="place-layout">
-          <div class="board-frame"><div id="place-board"></div></div>
+        <h2 class="deck-sign">${th("place_title", { name: side.name })}</h2>
+        <div class="place-layout deck-sheet">
+          <div class="place-board-col">
+            <div class="board-frame"><div id="place-board"></div></div>
+            <div class="place-foot">
+              <span class="place-quill" aria-hidden="true">${QUILL}</span>
+              <p class="placed-count">${th("placed_count", { n: placed, total: fleet.length })}</p>
+              <span class="place-compass" aria-hidden="true">${COMPASS}</span>
+            </div>
+          </div>
           <aside class="scroll orders">
             <div class="scroll-roll top"></div>
             <div class="scroll-body">
               <p id="place-note" class="note" role="status" aria-live="polite"></p>
               <div class="orders-how">
-                <h3>${th("orders_title")}</h3>
+                ${ornate(th("orders_title"))}
                 <ol class="code orders-list">
                   <li>${th("order_drag")}</li>
                   <li>${th("order_rotate")}</li>
@@ -1138,7 +1147,7 @@ function placementScreen(i) {
                 </ol>
               </div>
               <div class="orders-hold">
-                <h4>${th("hold_title")}</h4>
+                ${ornate(th("hold_title"), "h4")}
                 <div class="ship-list">${ships}</div>
                 <p class="orient">${th(ed.orient === "H" ? "horizontal" : "vertical")}</p>
                 <div class="buttons">
@@ -1146,7 +1155,7 @@ function placementScreen(i) {
                   <button id="random">${th("random")}</button>
                   <button id="clear">${th("clear")}</button>
                 </div>
-                <button id="ready" class="primary board-button">${th("ready")}</button>
+                <button id="ready" class="primary board-button red-button"><span>${th("ready")}</span>${SWORDS}</button>
               </div>
             </div>
             <div class="scroll-roll bottom"></div>
@@ -1466,23 +1475,38 @@ function ensureLayout() {
     </div>`;
   app.innerHTML = `
     <section class="game">
-      <div class="arena">
-        ${panel("left")}
-        <div class="commentator" id="parrot-dock"></div>
-        ${panel("right")}
+      <div class="game-sheet deck-sheet">
+        <div class="arena">
+          ${panel("left")}
+          <div class="commentator-col">
+            <div class="commentator" id="parrot-dock"></div>
+            ${STAND}
+          </div>
+          ${panel("right")}
+        </div>
+        <div class="game-side" id="game-side"></div>
       </div>
-      <div class="game-side" id="game-side"></div>
+      <div class="edge-decor" aria-hidden="true">
+        <span class="decor-compass">${COMPASS}</span>
+        <span class="decor-spyglass">${SPYGLASS}</span>
+      </div>
     </section>`;
   // The parrot sits still on its perch between the boards (see parrot.js).
   layout = { key, root: app.querySelector(".game"), parrot: createParrot(app.querySelector("#parrot-dock")), active: null, logOpen: false };
   return true;
 }
 
-function plateHtml(side, caption, active) {
+// A carved wooden plaque: an icon, the board's caption in gold and who it belongs to.
+function plateHtml(side, caption, active, icon) {
   return `
     <img class="hat" src="img/hat.webp" alt="" draggable="false">
-    <span class="pname">${esc(side.icon)} ${esc(side.name)}</span>
-    <span class="caption">${caption}</span>
+    <span class="plaque">
+      ${icon}
+      <span class="plaque-text">
+        <span class="caption">${caption}</span>
+        <span class="pname">${esc(side.icon)} ${esc(side.name)}</span>
+      </span>
+    </span>
     ${active ? `<span class="sr-only">${th("turn_of", { name: side.name })}</span>` : ""}`;
 }
 
@@ -1530,7 +1554,8 @@ function gameScreen() {
   const fromRect = previous != null && previous !== active ? plates[previous].querySelector(".hat")?.getBoundingClientRect() : null;
   for (const side of [left, right]) {
     const caption = me != null ? th(side === me ? "your_fleet" : "enemy_waters") : th("fleet_short");
-    plates[side].innerHTML = plateHtml(sides[side], caption, side === active);
+    const icon = (me != null ? side === me : side === left) ? SHIP_ICON : HELM_ICON;
+    plates[side].innerHTML = plateHtml(sides[side], caption, side === active, icon);
     plates[side].classList.toggle("active", side === active);
   }
   if (fromRect && active != null) flyHat(fromRect, plates[active].querySelector(".hat"));
@@ -1584,7 +1609,7 @@ function gameScreen() {
       continue;
     }
     const theme = side === left ? "light" : "dark";
-    box.innerHTML = `<span class="afloat-label">${th("afloat")}</span>
+    box.innerHTML = `<span class="afloat-label">${th("afloat")}<b class="afloat-count">${status[side].view.remaining.length}</b></span>
       <span class="afloat-ships">${status[side].view.remaining.map((n) => miniShip(n, theme)).join("")}</span>
       <span class="shots-count">🎯 ${match.shots[1 - side]}</span>`;
   }
@@ -1597,6 +1622,8 @@ function gameScreen() {
     .reverse()
     .map((entry) => `<li>${th(entry.key, entry.vars)}</li>`)
     .join("");
+  const latest = match.log[match.log.length - 1];
+  const lastEntry = latest ? th(latest.key, latest.vars) : "";
   const sidePanel = app.querySelector("#game-side");
   sidePanel.innerHTML = `
     <div class="controls">
@@ -1612,7 +1639,7 @@ function gameScreen() {
       }
     </div>
     ${match.xray && hasBot ? `<p class="help">${xrayNames.length ? th("xray_help", { names: xrayNames.join(", ") }) : th("xray_none")}</p>` : ""}
-    <details class="log"${layout.logOpen ? " open" : ""}><summary>📜 ${th("log_title")}</summary><ol>${log}</ol></details>`;
+    <details class="log"${layout.logOpen ? " open" : ""}><summary><span class="log-title">📜 ${th("log_title")}</span><span class="log-last">${lastEntry}</span></summary><ol>${log}</ol></details>`;
 
   sidePanel.querySelector("#hints").addEventListener("change", (event) => {
     match.hints = event.target.checked;
@@ -1649,9 +1676,21 @@ function gameScreen() {
 
 // --- boot -------------------------------------------------------------------------------
 
+// Behind the placement and battle screens: the same cabin as the start screen (its room
+// picture and the sea through its windows), dimmed. Decoration only; CSS shows it there.
+function mountDeckBackdrop() {
+  if (document.querySelector(".deck-backdrop")) return;
+  const backdrop = document.createElement("div");
+  backdrop.className = "deck-backdrop";
+  backdrop.setAttribute("aria-hidden", "true");
+  backdrop.innerHTML = `<div class="deck-scene"><div class="deck-sea">${SEA}</div><img class="deck-room" src="${sceneUrl("wide")}" alt=""></div>`;
+  document.body.appendChild(backdrop);
+}
+
 async function boot() {
   setLang(getLang());
   renderHeader();
+  mountDeckBackdrop();
   updateMusic(); // silent until the first click with sound on
   const loading = (key) => {
     current = () => loading(key);
