@@ -24,7 +24,27 @@ import {
   SPEAKER_ON,
 } from "./cabin.js";
 import { MAX_COLUMNS } from "./coords.js";
-import { HELM_ICON, QUILL, SHIP_ICON, STAND, SWORDS, ornate } from "./deck-art.js";
+import {
+  ANCHOR,
+  HELM_ICON,
+  HELM_SMALL,
+  ICON_CREW,
+  ICON_EXTERNAL,
+  ICON_SEED,
+  ICON_SKULL,
+  ICON_SWORDS,
+  ICON_TROPHY,
+  LAUREL,
+  QUILL,
+  SHIP_ICON,
+  SKETCH_ISLAND,
+  SKETCH_LIGHTHOUSE,
+  SKETCH_ROSE,
+  SKETCH_SHIP,
+  STAND,
+  SWORDS,
+  ornate,
+} from "./deck-art.js";
 import { closeEndScreen, showEndScreen } from "./endscreen.js";
 import { bubbles, explode, launchMissile, splash } from "./fx.js";
 import { esc, th } from "./html.js";
@@ -655,16 +675,33 @@ document.addEventListener("click", () => {
   if (cabin.panel) closePanel({ restoreFocus: false });
 });
 
+// The Tournament, Ranking and About pages: a parchment sheet in the cabin, under a red
+// ribbon with the page's title, with ink sketches on the paper and things on the table
+// around it. Pictures only: none of it takes clicks.
+function ribbonHtml(title, icon = ANCHOR) {
+  return `<h2 class="ribbon">${icon}<span>${title}</span>${icon}</h2>`;
+}
+
+function pageDecor(sketches, edges) {
+  return `<div class="page-sketches" aria-hidden="true">${sketches.join("")}</div>
+    <div class="page-edges" aria-hidden="true">${edges.map(([cls, art]) => `<span class="${cls}">${art}</span>`).join("")}</div>`;
+}
+
 function aboutScreen() {
   app.innerHTML = `
-    <section class="panel">
-      <h2>${th("about_title")}</h2>
+    <section class="panel deck-page about-page">
+      ${pageDecor([SKETCH_SHIP, SKETCH_LIGHTHOUSE], [["edge-compass", COMPASS], ["edge-quill", QUILL]])}
+      ${ribbonHtml(th("about_title"))}
       <p>${th("about_body")}</p>
       <p>${th("rules_short")}</p>
-      <p><a href="${getLang() === "es" ? "docs/es/" : "docs/"}">${th("docs_link")}</a> ·
-        <a href="https://github.com/carmencuerva/BATTLESHIP">GitHub</a></p>
+      <p class="page-links"><a href="${getLang() === "es" ? "docs/es/" : "docs/"}">${th("docs_link")}</a> ·
+        <a href="https://github.com/carmencuerva/BATTLESHIP">GitHub${ICON_EXTERNAL}</a></p>
+      <div class="helm-rule" aria-hidden="true">${HELM_SMALL}</div>
       <ul class="players">${players
-        .map((p) => `<li>${esc(p.icon)} <b>${esc(p.name)}</b> — ${esc(p.description)} <small>(${esc(p.authors.join(", "))})</small></li>`)
+        .map(
+          (p) =>
+            `<li><span class="p-icon">${esc(p.icon)}</span> <span><b>${esc(p.name)}</b> — ${esc(p.description)} <small>(${esc(p.authors.join(", "))})</small></span></li>`,
+        )
         .join("")}</ul>
     </section>`;
 }
@@ -677,9 +714,10 @@ function rankingScreen() {
   else if (ranking.status === "missing") body = `<p class="help">${th("ranking_missing")}</p>`;
   else body = leaderboardHtml(ranking.data);
   app.innerHTML = `
-    <section class="panel">
-      <h2>${th("ranking_title")}</h2>
-      <p>${th("ranking_help")}</p>
+    <section class="panel deck-page rank-page">
+      ${pageDecor([SKETCH_SHIP, SKETCH_ROSE, SKETCH_ISLAND, SKETCH_LIGHTHOUSE], [["edge-compass", COMPASS], ["edge-spyglass", SPYGLASS]])}
+      ${ribbonHtml(th("ranking_title"), LAUREL)}
+      <p class="page-lead">${th("ranking_help")}</p>
       ${body}
     </section>`;
   if (!ranking) loadRanking();
@@ -723,7 +761,7 @@ function tournamentScreen() {
       (p) =>
         `<label class="radio"><input type="checkbox" class="pick" value="${esc(p.name)}"` +
         `${tour.players.includes(p.name) ? " checked" : ""}${running ? " disabled" : ""}> ` +
-        `${esc(p.icon)} ${esc(p.name)}</label>`,
+        `<span class="pick-icon">${esc(p.icon)}</span> <span class="pick-name">${esc(p.name)}</span></label>`,
     )
     .join("");
   const format = (value) =>
@@ -740,22 +778,39 @@ function tournamentScreen() {
     status = `<p>${th("tournament_done", { games: tour.total })}</p>${leaderboardHtml(tour.result)}`;
   }
 
+  // A number field between two arrows: the arrows do what the field's own spin buttons do.
+  const stepper = (input) =>
+    `<span class="stepper"><button type="button" class="step" data-step="down" tabindex="-1" aria-hidden="true"${dis}>‹</button>${input}<button type="button" class="step" data-step="up" tabindex="-1" aria-hidden="true"${dis}>›</button></span>`;
+  const label = (iconSvg, key) => `<span class="field-label">${iconSvg}${th(key)}</span>`;
+
   app.innerHTML = `
-    <section class="panel menu">
-      <h2>${th("tournament_title")}</h2>
-      <p class="help">${th("tournament_help", { size: settings.size, fleet: settings.fleet.join(",") })}</p>
-      <fieldset><legend>${th("tournament_players")}</legend>${picks}</fieldset>
+    <section class="panel menu deck-page tour-page">
+      ${pageDecor([SKETCH_SHIP, SKETCH_ROSE], [["edge-compass", COMPASS], ["edge-spyglass", SPYGLASS]])}
+      ${ribbonHtml(th("tournament_title"))}
+      <p class="help page-lead">${th("tournament_help", { size: settings.size, fleet: settings.fleet.join(",") })}</p>
+      <fieldset><legend>${ICON_CREW}${th("tournament_players")}</legend>${picks}</fieldset>
       <div class="fields">
-        <label>${th("games_per_pair")}<input id="tour-games" type="number" min="2" max="200" step="2" value="${tour.games}"${dis}></label>
-        <label>${th("seed")}<input id="tour-seed" type="number" min="0" value="${tour.seed}"${dis}></label>
-        <label>${th("format")}<select id="tour-format"${dis}>${format("league")}${format("simple")}${format("championship")}</select></label>
-        <label class="ko-field"${tour.format === "championship" ? "" : " hidden"}>${th("knockout_games")}<input id="tour-ko" type="number" min="2" max="100" step="2" value="${tour.knockout}"${dis}></label>
+        <label>${label(ICON_SWORDS, "games_per_pair")}${stepper(`<input id="tour-games" type="number" min="2" max="200" step="2" value="${tour.games}"${dis}>`)}</label>
+        <label>${label(ICON_SEED, "seed")}${stepper(`<input id="tour-seed" type="number" min="0" value="${tour.seed}"${dis}>`)}</label>
+        <label>${label(ICON_TROPHY, "format")}<select id="tour-format"${dis}>${format("league")}${format("simple")}${format("championship")}</select></label>
+        <label class="ko-field"${tour.format === "championship" ? "" : " hidden"}>${label(ICON_SKULL, "knockout_games")}${stepper(`<input id="tour-ko" type="number" min="2" max="100" step="2" value="${tour.knockout}"${dis}>`)}</label>
       </div>
-      ${running ? `<button id="tour-stop">${th("stop")}</button>` : `<button id="tour-run" class="primary">${th("run_tournament")}</button>`}
+      <div class="tour-actions">
+        ${running ? `<button id="tour-stop">${th("stop")}</button>` : `<button id="tour-run" class="primary">${LAUREL}<span>${th("run_tournament")}</span>${LAUREL}</button>`}
+      </div>
       <p class="error">${esc(tour.error)}</p>
       ${status}
     </section>`;
 
+  app.querySelectorAll(".stepper .step").forEach((button) =>
+    button.addEventListener("click", () => {
+      const input = button.parentElement.querySelector("input");
+      if (button.dataset.step === "up") input.stepUp();
+      else input.stepDown();
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }),
+  );
   app.querySelector("#tour-stop")?.addEventListener("click", () => {
     tour.status = "stopped";
   });

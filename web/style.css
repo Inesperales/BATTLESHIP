@@ -3589,19 +3589,19 @@ button.tiny.wide {
   background: #140b05;
 }
 
-html:has(#app > .placement, #app > .game) {
+html:has(#app > .placement, #app > .game, #app > .deck-page) {
   background: #140b05;
 }
 
-body:has(#app > .placement, #app > .game) {
+body:has(#app > .placement, #app > .game, #app > .deck-page) {
   background: transparent;
 }
 
-body:has(#app > .placement, #app > .game)::after {
+body:has(#app > .placement, #app > .game, #app > .deck-page)::after {
   display: none;
 }
 
-body:has(#app > .placement, #app > .game) .deck-backdrop {
+body:has(#app > .placement, #app > .game, #app > .deck-page) .deck-backdrop {
   display: block;
 }
 
@@ -3674,7 +3674,6 @@ body:has(#app > .placement, #app > .game) .deck-backdrop {
     0 0 0 11px #1a0a03,
     0 26px 60px rgba(0, 0, 0, 0.65),
     inset 0 0 50px rgba(120, 70, 20, 0.3);
-  animation: deck-unroll 0.45s ease-out both;
 }
 
 /* brass brackets with a rivet at each corner */
@@ -3702,12 +3701,6 @@ body:has(#app > .placement, #app > .game) .deck-backdrop {
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
 }
 
-@keyframes deck-unroll {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.985);
-  }
-}
 
 /* The screen's name carved on a board, like the title in the cabin. */
 .panel h2.deck-sign {
@@ -4565,5 +4558,901 @@ body:has(#app > .placement, #app > .game) main {
 
   .log-last {
     display: none;
+  }
+}
+
+/* --- Tournament, Ranking and About: parchment pages in the cabin --------------------------
+   Same room behind (dimmed), a large parchment sheet with brass corners, the page's title
+   on a red ribbon, ink sketches on the paper and a classical serif. Only looks. */
+
+.panel.deck-page {
+  --page-serif: "EB Garamond", Georgia, "Times New Roman", serif;
+  position: relative;
+  z-index: 1;
+  --pad-top: 62px;
+  max-width: 1240px;
+  margin: 44px auto 0;
+  padding: var(--pad-top) 58px 40px;
+  color: var(--deck-ink);
+  font: 19px/1.5 var(--page-serif);
+  background:
+    radial-gradient(ellipse at 14% 10%, rgba(255, 255, 255, 0.55), transparent 42%),
+    radial-gradient(ellipse at 88% 88%, rgba(150, 90, 30, 0.3), transparent 50%),
+    radial-gradient(ellipse at 72% 18%, rgba(160, 100, 40, 0.14), transparent 38%),
+    radial-gradient(ellipse at 22% 82%, rgba(160, 100, 40, 0.18), transparent 40%),
+    linear-gradient(160deg, var(--deck-parch-hi), var(--deck-parch) 55%, var(--deck-parch-lo));
+  border: 3px solid #5a2e12;
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 3px #2a1406,
+    0 0 0 6px var(--deck-gold),
+    0 0 0 10px #4a250f,
+    0 0 0 11px #1a0a03,
+    0 26px 60px rgba(0, 0, 0, 0.65),
+    inset 0 0 60px rgba(120, 70, 20, 0.32);
+}
+
+
+/* brass brackets with a rivet at each corner */
+.panel.deck-page::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  z-index: 3;
+  pointer-events: none;
+  --b: linear-gradient(180deg, var(--deck-gold-hi), var(--deck-gold) 50%, var(--deck-gold-lo));
+  --s: linear-gradient(90deg, var(--deck-gold-hi), var(--deck-gold) 50%, var(--deck-gold-lo));
+  background:
+    radial-gradient(circle, #5a3a0a 3px, transparent 3.6px) 11px 11px / 16px 16px no-repeat,
+    radial-gradient(circle, #5a3a0a 3px, transparent 3.6px) calc(100% - 11px) 11px / 16px 16px no-repeat,
+    radial-gradient(circle, #5a3a0a 3px, transparent 3.6px) 11px calc(100% - 11px) / 16px 16px no-repeat,
+    radial-gradient(circle, #5a3a0a 3px, transparent 3.6px) calc(100% - 11px) calc(100% - 11px) / 16px 16px no-repeat,
+    var(--b) top left / 76px 16px no-repeat,
+    var(--s) top left / 16px 76px no-repeat,
+    var(--b) top right / 76px 16px no-repeat,
+    var(--s) top right / 16px 76px no-repeat,
+    var(--b) bottom left / 76px 16px no-repeat,
+    var(--s) bottom left / 16px 76px no-repeat,
+    var(--b) bottom right / 76px 16px no-repeat,
+    var(--s) bottom right / 16px 76px no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+}
+
+.deck-page > *:not(.page-sketches):not(.page-edges) {
+  position: relative;
+  z-index: 1;
+}
+
+/* the title, on a red ribbon with folded ends, half over the top edge */
+.panel.deck-page h2.ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: max-content;
+  max-width: calc(100% + 40px);
+  margin: calc(-1 * var(--pad-top) - 44px) auto 22px;
+  z-index: 4;
+  padding: 12px 58px 14px;
+  font: 600 46px/1.1 var(--page-serif);
+  letter-spacing: 0.01em;
+  color: #fbe9c0;
+  text-shadow: 0 2px 0 #3a0905, 0 0 14px rgba(255, 200, 120, 0.25);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 40%),
+    linear-gradient(180deg, #b23a24, #85200f 55%, #5e140a);
+  border: 3px solid #d6a94c;
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 2px #5a0f07,
+    inset 0 -6px 12px rgba(0, 0, 0, 0.25),
+    0 0 0 3px #3a0904,
+    0 12px 22px rgba(0, 0, 0, 0.45);
+}
+
+.panel.deck-page h2.ribbon::before,
+.panel.deck-page h2.ribbon::after {
+  content: "";
+  position: absolute;
+  top: 16px;
+  z-index: -1;
+  width: 54px;
+  height: 100%;
+  background: linear-gradient(180deg, #7a1c10, #4a0d06);
+  border: 2px solid #b8862e;
+}
+
+.panel.deck-page h2.ribbon::before {
+  left: -34px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 34% 50%);
+}
+
+.panel.deck-page h2.ribbon::after {
+  right: -34px;
+  clip-path: polygon(0 0, 100% 0, 66% 50%, 100% 100%, 0 100%);
+}
+
+.ribbon-icon {
+  flex: none;
+  width: 36px;
+  height: 40px;
+  filter: drop-shadow(0 2px 0 #3a0905);
+}
+
+.ribbon-icon.laurel:last-child,
+#tour-run .laurel:last-of-type {
+  transform: scaleX(-1);
+}
+
+.page-lead,
+.deck-page .page-lead.help {
+  margin: 0 auto 22px;
+  max-width: 800px;
+  text-align: center;
+  font: italic 600 21px/1.4 var(--page-serif);
+  color: var(--deck-ink);
+}
+
+/* ink sketches on the paper */
+.page-sketches {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.sketch {
+  position: absolute;
+  height: auto;
+  opacity: 0.55;
+}
+
+.page-sketches .sketch-ship {
+  left: 30px;
+  top: 34px;
+  width: 150px;
+}
+
+.page-sketches .sketch-rose {
+  right: 46px;
+  top: 30px;
+  width: 128px;
+  opacity: 0.45;
+}
+
+.page-sketches .sketch-island {
+  left: 60px;
+  bottom: 26px;
+  width: 260px;
+}
+
+.page-sketches .sketch-lighthouse {
+  right: 50px;
+  bottom: 26px;
+  width: 260px;
+}
+
+/* the sketches sit in the band beside the title, the text starts below them */
+.panel.deck-page.about-page h2.ribbon {
+  margin-bottom: 100px;
+}
+
+.about-page .page-sketches .sketch-ship {
+  top: 26px;
+  width: 170px;
+}
+
+.about-page .page-sketches .sketch-lighthouse {
+  top: 18px;
+  bottom: auto;
+  width: 200px;
+}
+
+/* things on the table around the sheet, on wide screens */
+.page-edges {
+  display: none;
+}
+
+@media (min-width: 1500px) {
+  .page-edges {
+    display: block;
+  }
+
+  .page-edges > span {
+    position: fixed;
+    z-index: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.55));
+  }
+
+  .page-edges .prop-svg,
+  .page-edges .quill {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .edge-compass {
+    left: 10px;
+    bottom: 14px;
+    width: 130px;
+  }
+
+  .edge-spyglass {
+    right: 4px;
+    bottom: 30px;
+    width: 210px;
+  }
+
+  .edge-quill {
+    right: 26px;
+    bottom: 18px;
+    width: 96px;
+  }
+}
+
+/* --- Tournament --- */
+
+.tour-page fieldset {
+  position: relative;
+  max-width: 1060px;
+  margin: 26px auto 26px;
+  padding: 16px 40px 18px;
+  min-width: 0;
+  color: #f3e2bf;
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0 2px, transparent 2px 14px),
+    linear-gradient(180deg, #4a2511, #321708 60%, #26110a);
+  border: 3px solid var(--deck-gold);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 2px #1a0a03,
+    inset 0 0 24px rgba(0, 0, 0, 0.55),
+    0 0 0 2px #3a1d0c,
+    0 8px 18px rgba(60, 30, 5, 0.35);
+}
+
+.tour-page legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: -16px;
+  padding: 6px 26px 7px 18px;
+  font: 600 28px/1.1 var(--page-serif);
+  color: var(--deck-gold-hi);
+  text-shadow: 0 2px 0 #1a0a03;
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0 2px, transparent 2px 10px),
+    linear-gradient(180deg, var(--deck-wood-hi), var(--deck-wood) 55%, var(--deck-wood-lo));
+  border: 2px solid var(--deck-gold);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px #1a0a03, 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.tour-page legend .label-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.tour-page .radio {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 0;
+  font: 500 22px/1.3 var(--page-serif);
+  color: #f6e5c2;
+  cursor: pointer;
+}
+
+.pick-icon {
+  width: 28px;
+  font-size: 22px;
+  text-align: center;
+}
+
+/* golden check boxes */
+.tour-page .pick {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(180deg, #fbf1d9, #e2c98f);
+  border: 2px solid #c89640;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px #6b3a14, 0 2px 3px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.tour-page .pick:checked {
+  background: linear-gradient(180deg, #f6dc92, #d9a441 60%, #a8761f);
+}
+
+.tour-page .pick:checked::after {
+  content: "";
+  width: 7px;
+  height: 13px;
+  margin-top: -3px;
+  border: solid #3b2412;
+  border-width: 0 3.5px 3.5px 0;
+  transform: rotate(45deg);
+}
+
+.tour-page .pick:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* the settings: an icon and a label above a parchment field */
+.tour-page .fields {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 18px 30px;
+  max-width: 1100px;
+  margin: 0 auto 24px;
+}
+
+.tour-page .fields label {
+  display: flex;
+  flex: 1 1 200px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  min-width: 0;
+}
+
+.tour-page .fields label:has(#tour-format) {
+  flex: 1.9 1 320px;
+}
+
+.tour-page .fields label[hidden] {
+  display: none;
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font: 600 21px/1.2 var(--page-serif);
+  color: var(--deck-ink);
+}
+
+.label-icon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 50px;
+  padding: 4px;
+  background: linear-gradient(180deg, #fbf3df, #ecd8ad);
+  border: 2px solid #a7854e;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45), 0 3px 6px rgba(90, 55, 20, 0.3);
+}
+
+.stepper .step {
+  flex: none;
+  width: 40px;
+  height: 38px;
+  padding: 0 0 4px;
+  font: 700 30px/1 var(--page-serif);
+  color: var(--deck-gold-hi);
+  text-shadow: 0 1px 0 #1a0a03;
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0 2px, transparent 2px 9px),
+    linear-gradient(180deg, var(--deck-wood-hi), var(--deck-wood) 60%, var(--deck-wood-lo));
+  border: 2px solid var(--deck-gold);
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px #2a1406, 0 2px 0 #1a0a03;
+}
+
+.stepper input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  text-align: center;
+  font: 600 25px/1 var(--page-serif);
+  color: var(--deck-ink);
+  background: transparent;
+  border: 0;
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.stepper input::-webkit-inner-spin-button,
+.stepper input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stepper:focus-within {
+  border-color: var(--deck-gold);
+  box-shadow: 0 0 0 3px rgba(255, 212, 92, 0.6), 0 3px 6px rgba(90, 55, 20, 0.3);
+}
+
+.tour-page select {
+  height: 50px;
+  padding: 0 38px 0 12px;
+  text-align: center;
+  text-align-last: center;
+  font: 600 19px/1 var(--page-serif);
+  color: var(--deck-ink);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 9 L12 16 L19 9' fill='none' stroke='%233b2412' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      right 14px center / 20px no-repeat,
+    linear-gradient(180deg, #fbf3df, #ecd8ad);
+  border: 2px solid #a7854e;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45), 0 3px 6px rgba(90, 55, 20, 0.3);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+/* the big red button between two thin lines */
+.tour-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  margin: 6px auto 0;
+}
+
+.tour-actions::before,
+.tour-actions::after {
+  content: "";
+  flex: 0 1 200px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(110, 70, 30, 0.6));
+}
+
+.tour-actions::after {
+  transform: scaleX(-1);
+}
+
+#tour-run.primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 40px 12px;
+  font: 600 38px/1.1 var(--page-serif);
+  color: #fff1d0;
+  text-shadow: 0 2px 0 #3a0905;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 40%),
+    linear-gradient(180deg, #c8402c, #8a1f16 60%, #5e130c);
+  border: 3px solid #e2b55a;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 2px #7a140b, 0 0 0 3px #3a0904, 0 6px 0 #250602, 0 0 26px rgba(255, 130, 60, 0.3);
+}
+
+#tour-run.primary:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 2px #7a140b, 0 0 0 3px #3a0904, 0 6px 0 #250602, 0 0 40px rgba(255, 150, 70, 0.6);
+}
+
+#tour-run.primary:active:not(:disabled) {
+  transform: translateY(3px);
+}
+
+#tour-run .ribbon-icon {
+  width: 30px;
+  height: 34px;
+}
+
+#tour-stop {
+  padding: 10px 34px;
+  font: 600 26px/1 var(--page-serif);
+  color: var(--deck-gold-hi);
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0 2px, transparent 2px 9px),
+    linear-gradient(180deg, var(--deck-wood-hi), var(--deck-wood) 60%, var(--deck-wood-lo));
+  border: 2px solid var(--deck-gold);
+  border-radius: 10px;
+}
+
+.tour-page .error {
+  text-align: center;
+  color: var(--deck-red);
+  font-weight: 600;
+}
+
+.tour-page .error:empty {
+  display: none;
+}
+
+#tour-progress,
+.tour-page > p:not(.error):not(.page-lead) {
+  text-align: center;
+  font: italic 600 20px/1.3 var(--page-serif);
+  color: var(--deck-ink);
+}
+
+#tour-bar {
+  display: block;
+  width: min(640px, 100%);
+  height: 20px;
+  margin: 6px auto 0;
+  appearance: none;
+  border: 2px solid var(--deck-gold);
+  border-radius: 10px;
+  background: #3a1d0c;
+  overflow: hidden;
+}
+
+#tour-bar::-webkit-progress-bar {
+  background: linear-gradient(180deg, #2a1408, #4a2511);
+}
+
+#tour-bar::-webkit-progress-value {
+  background: linear-gradient(180deg, #f6dc92, #d9a441 60%, #a8761f);
+}
+
+#tour-bar::-moz-progress-bar {
+  background: linear-gradient(180deg, #f6dc92, #d9a441 60%, #a8761f);
+}
+
+/* --- Ranking (and a tournament's result) --- */
+
+.deck-page .help:not(.page-lead) {
+  margin: 0 0 14px;
+  text-align: center;
+  font: 500 18px/1.4 var(--page-serif);
+  color: var(--deck-ink);
+}
+
+.deck-page .table-wrap {
+  overflow-x: auto;
+  margin: 0 auto 26px;
+  border-radius: 10px;
+  box-shadow: 0 0 0 3px #3a1d0c, 0 10px 22px rgba(60, 30, 5, 0.4);
+}
+
+.deck-page table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: #f3e2bf;
+  font: 19px/1.3 var(--page-serif);
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.08) 0 2px, transparent 2px 16px),
+    linear-gradient(180deg, #3e1f0d, #2a1408);
+  border: 3px solid var(--deck-gold);
+  border-radius: 10px;
+}
+
+.deck-page th,
+.deck-page td {
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(214, 169, 76, 0.22);
+  white-space: nowrap;
+}
+
+.deck-page thead th {
+  font: 600 18px/1.2 var(--page-serif);
+  color: var(--deck-gold-hi);
+  text-align: left;
+  background: linear-gradient(180deg, rgba(90, 50, 20, 0.6), rgba(40, 18, 6, 0.4));
+  border-bottom: 2px solid rgba(214, 169, 76, 0.55);
+}
+
+.deck-page tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.deck-page tbody tr:hover > * {
+  background: rgba(255, 210, 120, 0.06);
+}
+
+.deck-page .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.deck-page thead th:first-child,
+.deck-page td.num:first-child {
+  text-align: center;
+  color: var(--deck-gold-hi);
+  font-weight: 700;
+}
+
+.deck-page .strong {
+  font-weight: 700;
+  color: #f6c45c;
+}
+
+.deck-page .who b {
+  font-size: 21px;
+  color: #fbe9c0;
+}
+
+.deck-page .who small {
+  margin-left: 6px;
+  font-style: italic;
+  font-size: 16px;
+  color: #cdb890;
+}
+
+/* "Head to head" on a small red ribbon, its table centred */
+.deck-page h3 {
+  width: max-content;
+  max-width: 100%;
+  margin: 8px auto 14px;
+  padding: 7px 34px 9px;
+  font: 600 24px/1.2 var(--page-serif);
+  color: #fbe9c0;
+  text-shadow: 0 1px 0 #3a0905;
+  background: linear-gradient(180deg, #8a2414, #5e140a);
+  border: 2px solid #c89640;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px #4a0d06, 0 6px 12px rgba(0, 0, 0, 0.35);
+}
+
+.deck-page .table-wrap:has(table.cross) {
+  width: max-content;
+  max-width: 100%;
+}
+
+.deck-page table.cross {
+  width: auto;
+}
+
+.deck-page table.cross thead th {
+  text-align: center;
+  font-size: 22px;
+}
+
+.deck-page table.cross th.who {
+  text-align: left;
+  font: 600 20px/1.2 var(--page-serif);
+  color: #fbe9c0;
+  padding-right: 26px;
+}
+
+.deck-page table.cross td {
+  min-width: 70px;
+  text-align: center;
+  border-left: 1px solid rgba(214, 169, 76, 0.18);
+}
+
+.deck-page table.cross td.self {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.deck-page table.cross td.self::after {
+  content: "—";
+  color: #cdb890;
+}
+
+/* the knockout bracket of a championship */
+.deck-page .ko {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  padding: 6px 2px 12px;
+}
+
+.deck-page .ko-round h4 {
+  margin: 0 0 8px;
+  font: 600 19px/1.2 var(--page-serif);
+  color: var(--deck-ink);
+  text-align: center;
+}
+
+.deck-page .ko-match {
+  margin-bottom: 10px;
+  color: #f3e2bf;
+  background: linear-gradient(180deg, #3e1f0d, #2a1408);
+  border: 2px solid var(--deck-gold);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.deck-page .ko-side {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 10px;
+}
+
+.deck-page .ko-side.won {
+  color: #f6c45c;
+  font-weight: 700;
+}
+
+.deck-page .ko-champion {
+  align-self: center;
+  text-align: center;
+  font: 600 20px/1.3 var(--page-serif);
+}
+
+.deck-page .ko-champion b {
+  color: var(--deck-red);
+}
+
+.deck-page .rejected {
+  font-size: 17px;
+}
+
+.rank-page {
+  padding-bottom: 150px;
+}
+
+/* --- About --- */
+
+.about-page p {
+  margin: 0 0 16px;
+  font-size: 21px;
+  line-height: 1.5;
+}
+
+.about-page .page-links {
+  font-size: 21px;
+}
+
+.about-page a {
+  color: #8a1f16;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.about-page a:hover {
+  color: #b23a24;
+}
+
+.ext-icon {
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  vertical-align: -2px;
+}
+
+/* a thin rule with a ship's wheel in the middle */
+.helm-rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 10px auto 20px;
+  max-width: 900px;
+}
+
+.helm-rule::before,
+.helm-rule::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #6b3a14);
+}
+
+.helm-rule::after {
+  transform: scaleX(-1);
+}
+
+.helm-small {
+  width: 40px;
+  height: 40px;
+}
+
+.about-page ul.players {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about-page ul.players li {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 12px;
+  padding-left: 22px;
+  font-size: 21px;
+  line-height: 1.4;
+}
+
+.about-page ul.players li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--deck-ink);
+}
+
+.p-icon {
+  flex: none;
+  width: 30px;
+  font-size: 24px;
+  text-align: center;
+}
+
+.about-page ul.players b {
+  font-weight: 700;
+}
+
+.about-page ul.players small {
+  font-size: inherit;
+  font-style: italic;
+}
+
+/* --- the pages on narrower screens --- */
+
+@media (max-width: 900px) {
+  .panel.deck-page.about-page h2.ribbon {
+    margin-bottom: 22px;
+  }
+
+  .panel.deck-page {
+    --pad-top: 50px;
+    margin-top: 34px;
+    padding: var(--pad-top) 18px 26px;
+    font-size: 17px;
+  }
+
+  .panel.deck-page h2.ribbon {
+    margin-top: calc(-1 * var(--pad-top) - 34px);
+    gap: 10px;
+    padding: 8px 22px 10px;
+    font-size: 28px;
+  }
+
+  .panel.deck-page h2.ribbon::before,
+  .panel.deck-page h2.ribbon::after {
+    display: none;
+  }
+
+  .ribbon-icon {
+    width: 24px;
+    height: 28px;
+  }
+
+  .page-sketches {
+    display: none;
+  }
+
+  .tour-page fieldset {
+    padding: 12px 18px 14px;
+  }
+
+  .tour-page legend {
+    font-size: 22px;
+  }
+
+  #tour-run.primary {
+    padding: 8px 22px 10px;
+    font-size: 28px;
+  }
+
+  .tour-actions::before,
+  .tour-actions::after {
+    display: none;
+  }
+
+  .about-page p,
+  .about-page ul.players li {
+    font-size: 18px;
+  }
+
+  .rank-page {
+    padding-bottom: 26px;
   }
 }

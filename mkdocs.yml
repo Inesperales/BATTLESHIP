@@ -6,13 +6,23 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
+  # The game's look: dark wood, parchment and brass (docs/stylesheets/battleship.css).
   palette:
-    scheme: slate
-    primary: blue
-    accent: light blue
+    scheme: battleship
+    primary: custom
+    accent: custom
+  font:
+    text: EB Garamond
+    code: Roboto Mono
+  icon:
+    logo: material/ship-wheel
+    repo: fontawesome/brands/github
   features:
     - navigation.sections
     - content.code.copy
+
+extra_css:
+  - stylesheets/battleship.css
 
 markdown_extensions:
   - admonition
