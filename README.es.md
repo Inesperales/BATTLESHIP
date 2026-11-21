@@ -29,18 +29,17 @@ dónde está en [docs/ENTENDER.md](docs/ENTENDER.md#5-qué-viene-de-nim-arena-y-
 
 [![Videotutorial de Battleship Arena: cómo se juega y cómo usar la interfaz](docs/media/tutorial-thumbnail.jpg)](docs/media/tutorial.mp4)
 
-Haz clic en la imagen para ver el vídeo (4 min, con subtítulos en español). Recorre la
-interfaz de principio a fin:
+Haz clic en la imagen para ver el vídeo (2 min 35 s, con voz en off, subtítulos en español
+y la música pirata del propio juego de fondo). Grabado sobre la web actual:
 
 1. **El camarote (menú):** elegir el modo de juego, poner tu nombre, preparar la travesía
-   (flota, tamaño del mar y viento), escoger el capitán enemigo y leer el código del pirata.
+   (flota, tamaño del mar y viento) y escoger el capitán enemigo.
 2. **Colocar la flota:** arrastrar barcos, girarlos con <kbd>R</kbd>, qué pasa si un barco
-   toca a otro, y los botones *Aleatoria*, *Borrar* y *¡Leven anclas!*.
-3. **La batalla:** cómo disparar, qué significan agua, tocado y hundido, las pistas de agua
-   segura, el loro, los Rayos X y el cuaderno de bitácora (el tramo final va acelerado ×4).
+   toca a otro, y los botones *Aleatoria* y *¡Leven anclas!*.
+3. **La batalla:** cómo disparar, agua y tocado, las pistas de agua segura, los Rayos X y
+   el cuaderno de bitácora; después salta al final de la partida.
 4. **Fin de la partida:** la pantalla de victoria y qué hacer después.
-5. **Torneo y Clasificación.**
-6. **Ajustes:** sonido, volumen de la música y del loro, e idioma ES/EN.
+5. **Torneo, Clasificación y ajustes** de sonido, volumen e idioma.
 
 ## Las reglas en un párrafo
 

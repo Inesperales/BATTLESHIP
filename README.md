@@ -29,12 +29,12 @@ wrote a new game, new bots and a new interface on top. What comes from where is 
 
 [![Battleship Arena video tutorial: how to play and how to use the interface](docs/media/tutorial-thumbnail.jpg)](docs/media/tutorial.mp4)
 
-Click the image to watch the video (4 min; the interface and subtitles are in Spanish). It
-walks through the whole interface: the captain's cabin (game mode, your name, fleet, sea
-size, wind, enemy captain and the pirate code), placing your fleet (drag, rotate with
-<kbd>R</kbd>, *Random*, *Clear*, *Weigh anchor!*), the battle (shooting, miss/hit/sunk,
-safe-water hints, the parrot, X-ray and the ship's log), the end screen, the Tournament and
-Ranking tabs, and the sound, volume and language settings.
+Click the image to watch the video (2 min 35 s, with a Spanish voice-over, Spanish
+subtitles and the game's own pirate music). Recorded on the current page, it walks through
+the captain's cabin (game mode, your name, fleet, sea size, wind, enemy captain), placing
+your fleet (drag, rotate with <kbd>R</kbd>, the no-touch rule, *Random*, *Weigh anchor!*),
+the battle (shooting, miss and hit, safe-water hints, X-ray, the ship's log), the end
+screen, the Tournament and Ranking tabs, and the sound, volume and language settings.
 
 ## Rules in one paragraph
 
