@@ -2,7 +2,7 @@
 
 - legality: no bot ever shoots off the board or at a cell it already shot;
 - placement: always legal (inside, no overlap, no contact), and not a fixed pattern;
-- ladder: random/easy < medium < hard, and lucia beats hard (marked slow);
+- ladder: random < easy < medium < hard < lucia, on several boards (marked slow);
 - reproducibility: the same seeds give the same game and the same tournament;
 - hidden information: no view handed to a bot reveals a ship cell it has not shot.
 """
@@ -114,12 +114,31 @@ def wins(a, b, games, seed=2026):
 
 @pytest.mark.slow
 def test_ladder_in_real_games():
-    """Fixed seeds, so the result never changes unless a bot does. Measured over 1,000
-    games per pair (seed 0): medium beats easy 1000-0, hard beats medium about 76%, lucia
-    beats hard about 68%; the thresholds leave room for small changes."""
-    assert wins("medium", "easy", 20) >= 18
+    """Fixed seeds, so the result never changes unless a bot does. Measured over 200-400
+    games per pair: easy beats random 100%, medium beats easy about 95%, hard beats medium
+    about 76%, lucia beats hard about 75% (66-83% on boards from 8x8 to 15x15); the
+    thresholds leave room for small changes."""
+    assert wins("easy", "random", 20) >= 18
+    assert wins("medium", "easy", 20) >= 17
     assert wins("hard", "medium", 40) >= 26
-    assert wins("lucia", "hard", 100) >= 56
+    assert wins("lucia", "hard", 100) >= 64
+
+
+@pytest.mark.slow
+def test_lucia_beats_hard_on_other_boards():
+    """Lucia's hiding model is built from the board, so its edge over hard is not a 10x10
+    accident (it used to be: about 54% on 12x12 with constants measured on 10x10)."""
+    for size, fleet in [(8, (4, 3, 2, 2)), (12, (6, 5, 4, 3, 3, 2))]:
+        pair = [BY_NAME["hard"], BY_NAME["lucia"]]
+        config = Config(games_per_pair=60, seed=2026, size=size, fleet=fleet)
+        won = 0
+        for _, _, s in schedule(pair, config):
+            record = run_game(
+                [BY_NAME["lucia"].cls, BY_NAME["hard"].cls], {**s, "time_budget": 10.0}
+            )
+            assert record["forfeits"] == []
+            won += record["winner"] == 0
+        assert won >= 36, (size, won)
 
 
 # --- reproducibility -------------------------------------------------------------------

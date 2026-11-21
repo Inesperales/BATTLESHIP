@@ -55,12 +55,13 @@ def test_shots_are_json_friendly(builtin_players):
         assert json.loads(json.dumps(shot)) == list(shot)
 
 
-def test_easy_scans_row_by_row(builtin_players):
-    easy = by_name(builtin_players, "easy").create(0)
+def test_easy_shoots_at_random_then_around_a_hit(builtin_players):
     view = view_for_attacker(
         new_board(DEFAULT_SIZE, DEFAULT_FLEET, [[2 * i, 0, "H"] for i in range(5)])
     )
-    assert easy.choose_shot(view) == (0, 0)
-    view["cells"][0] = [1] * DEFAULT_SIZE
-    view["cells"][1][0] = 1
-    assert easy.choose_shot(view) == (1, 1)
+    openings = {by_name(builtin_players, "easy").create(s).choose_shot(view) for s in range(30)}
+    assert len(openings) > 10  # no fixed pattern
+    view["cells"][4][4] = 2  # a hit
+    for seed in range(20):
+        shot = by_name(builtin_players, "easy").create(seed).choose_shot(view)
+        assert shot in {(3, 4), (5, 4), (4, 3), (4, 5)}

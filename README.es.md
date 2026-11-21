@@ -75,11 +75,29 @@ La guía completa está en [Escribe un bot](docs/write-a-bot.es.md). Mira tambi�
 | bot | estrategia |
 |-----|------------|
 | 🎲 random | dispara al azar |
-| 🐣 easy | recorre el tablero fila a fila |
+| 🐣 easy | dispara al azar y, cuando toca, prueba las casillas de alrededor hasta hundir el barco |
 | 🎯 medium | busca en damero y luego remata cada barco que toca; nunca dispara donde la regla de no tocarse deja solo agua |
 | 🧠 hard | dispara a la casilla más probable según todas las posiciones legales de los barcos; esconde su flota donde menos miran los cazadores |
 
-Cambios en la escalera (noviembre de 2026), medidos con 1.000 partidas por pareja (semilla 0):
+Cada nivel añade una idea al anterior, y se nota en los disparos que necesita para hundir
+una flota colocada al azar (media de 300 partidas): random 95, easy 66, medium 44, hard 39.
+Ningún bot ve el tablero rival: todos deciden solo con la `view` (lo ya disparado y las
+esloras que quedan), y hay tests que lo comprueban.
+
+Cambios de la revisión de bots (noviembre de 2026, tras el feedback del profesor):
+
+- **easy** recorría el tablero fila a fila y apenas se distinguía del azar (90 disparos
+  frente a 95; ganaba a random solo el 68 %). Ahora es un principiante creíble: dispara al
+  azar y remata lo que toca (66 disparos; gana a random 100–0 y pierde con medium 2–98).
+- **lucia** ganaba a hard solo porque sus constantes (cuánto se esconde un rival en el
+  borde) estaban medidas en 10×10 para la colocación de hard; en 12×12 casi empataban
+  (108–92) y en el torneo de 10 partidas de la web hard podía quedar por delante. Ahora
+  construye sus dos hipótesis («coloca al azar» / «se esconde donde menos miran») a partir
+  del propio tablero y aprende con cada casilla destapada, agua incluida. Gana a hard el
+  80 % en el torneo oficial y entre el 66 % y el 83 % en tableros de 8×8 a 15×15.
+- **medium** y **hard** no cambian: ya eran coherentes y hard es exigente sin hacer trampa.
+
+Cambios anteriores en la escalera (noviembre de 2026), medidos con 1.000 partidas por pareja (semilla 0):
 
 - **medium** disparaba a casillas que la regla de no tocarse ya había demostrado que eran
   agua (alrededor de barcos hundidos y en diagonal a los impactos): 7–8 disparos perdidos
@@ -88,13 +106,13 @@ Cambios en la escalera (noviembre de 2026), medidos con 1.000 partidas por parej
 - **hard** juega exactamente igual que antes (los mismos disparos en las 12.031 posiciones
   comprobadas), pero calcula su mapa de probabilidad unas 6 veces más rápido, con más
   margen bajo el límite de 2 s.
-- **random** y **easy** no cambian.
+- **random** y **easy** no cambiaron entonces.
 
 Bots enviados (`players/custom/`):
 
 | bot | autoría | estrategia |
 |-----|--------|------------|
-| 🐬 lucia | Lucía Argüello | cuenta todas las posiciones de barco que permite la regla de no tocarse y da más peso a los bordes según aprende, en cada partida, si el rival se esconde allí; esconde su flota entre las colocaciones menos expuestas, elegida al azar |
+| 🐬 lucia | Lucía Argüello | cuenta todas las posiciones de barco que permite la regla de no tocarse, como hard, pero mezcla dos hipótesis sobre el rival («coloca al azar» y «se esconde donde menos miran los cazadores») y aprende en cada partida cuál es la buena; esconde su flota entre las colocaciones menos expuestas, elegida al azar |
 
 ## Estructura del repositorio
 

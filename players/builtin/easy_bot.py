@@ -1,6 +1,6 @@
 import random
 
-from battleship.bots import random_fleet, scan_shot
+from battleship.bots import random_fleet, random_target_shot
 from battleship.player import Player
 
 
@@ -15,7 +15,7 @@ class EasyBot(Player):
 
     @classmethod
     def get_description(cls):
-        return "Random fleet; shoots row by row, left to right."
+        return "Random fleet; shoots at random, and after a hit tries the cells around it."
 
     @classmethod
     def get_icon(cls):
@@ -32,4 +32,4 @@ class EasyBot(Player):
         return random_fleet(board_size, fleet, self.rng)
 
     def choose_shot(self, view):
-        return scan_shot(view)
+        return random_target_shot(view, self.rng)

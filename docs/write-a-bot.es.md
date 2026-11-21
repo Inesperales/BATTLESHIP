@@ -62,6 +62,7 @@ muestra. Si quieres, puedes guardar estado en `self`.
 |-------|------|
 | `random_shot(view, rng)` | cualquier casilla sin disparar |
 | `scan_shot(view)` | la primera casilla sin disparar, fila a fila |
+| `random_target_shot(view, rng)` | al azar; tras un impacto, una casilla de al lado (easy) |
 | `hunt_target_shot(view, rng)` | búsqueda en damero y luego remata cada barco tocado |
 | `probability_shot(view, rng)` | la casilla cubierta por más posiciones legales de barcos; devuelve `(casilla, mapa_de_calor)` |
 | `probability_map(view)`, `hit_clusters(view)` | piezas para tus propias ideas |

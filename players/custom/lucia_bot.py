@@ -1,19 +1,26 @@
-"""LuciaBot: a probability hunter that also learns, game by game, where its rival hides.
+"""LuciaBot: a probability hunter that also learns, during the game, how its rival hides.
 
-Shooting. For every unshot cell, count the legal positions of the ships still afloat that
+Shooting. For every unshot cell, add up the legal positions of the ships still afloat that
 cover it, and shoot the best one. A position is legal only if it agrees with everything
 the view says and with the rule that ships never touch, not even diagonally: it avoids
 water, sunk ships and the ring around them, the cells diagonal to a hit, and it never
 brushes past a hit it does not contain. While a ship is hit but not sunk, only positions
 that contain those hits count, so the bot finishes it before hunting again.
 
-Each position is weighted by how many of its cells lie on the border. Good hiders put
-their fleet along the edges, where plain probability hunters look last; good hunters
-therefore look there a little earlier. How much is decided during the game: LuciaBot
-weighs two hypotheses about the rival, "hides along the edges" and "places evenly", and
-updates them (Bayes' rule) with every ship cell it uncovers, on the border or not.
+Unlike "hard", positions are not all worth the same. LuciaBot keeps two hypotheses about
+how the rival placed its fleet:
 
-Placement. Of 60 random legal placements, scored by how much of a plain hunter's opening
+- "even": every legal position equally likely (a random placement);
+- "hiding": positions where a probability hunter looks last are more likely. Each position
+  is weighted by ``exp(-HIDING_STRENGTH * exposure)``, where ``exposure`` is how much of the
+  opening probability map it covers (0 for the least exposed position, 1 for the most).
+
+Both hypotheses are built from the board itself, so they work for any board size and
+fleet. Every cell uncovered so far (water or ship) is evidence: Bayes' rule compares how
+likely it was under each hypothesis and updates the belief. Each position then weighs
+``(1 - belief) * P_even + belief * P_hiding`` (a mixture of the two models).
+
+Placement. Of 120 random legal placements, scored by how much of a plain hunter's opening
 map they cover, one of the least exposed is drawn at random (a soft minimum), so the
 fleet is hard to find but never the same.
 """
@@ -24,23 +31,20 @@ import random
 from battleship.game import HIT, MISS, SUNK, UNKNOWN, random_placement
 from battleship.player import Player
 
-# How likely a ship cell is to be on the border, under each hypothesis about the rival.
-# Measured on 2000 placements of the default 10x10 fleet: 31.8% for the arena's random
-# placement, 57.8% for its stealth placement (the one "hard" uses).
-BORDER_IF_EVEN = 0.32
-BORDER_IF_HIDING = 0.58
-EDGE_WEIGHT = 1.0  # weight exp(EDGE_WEIGHT * border share) for a position, if the rival hides
-PRIOR_HIDING = 0.5  # belief before the first ship cell is seen
+HIDING_STRENGTH = 2.0  # how sharply a hider avoids exposed positions (0 = not at all)
+PRIOR_HIDING = 0.5  # belief before any cell is uncovered
+EVIDENCE_WEIGHT = 0.5  # cells are not independent: count each one as half a piece of evidence
 
-PLACEMENT_SAMPLES = 60
-PLACEMENT_SOFTNESS = 3.0  # how far from the least exposed placement the draw may wander
+PLACEMENT_SAMPLES = 120
+PLACEMENT_SOFTNESS = 0.25  # how far (in average cells) the draw may wander from the least exposed
 
-_POSITIONS = {}  # (size, length) -> list of (cells, ring, border share), computed once
+_POSITIONS = {}  # (size, length) -> list of (cells, ring), computed once
+_MODELS = {}  # (size, fleet) -> (weights per length, occupancy per model), computed once
 
 
 def _positions(size, length):
     """Every position of a ship of ``length`` on a ``size`` board, as flat cell indices,
-    with the cells around it (its "ring") and the share of its cells on the border."""
+    with the cells around it (its "ring")."""
     key = (size, length)
     if key not in _POSITIONS:
         found = []
@@ -56,12 +60,10 @@ def _positions(size, length):
                         for dc in (-1, 0, 1)
                         if 0 <= x + dr < size and 0 <= y + dc < size
                     } - inside
-                    border = sum(1 for x, y in cells if x in (0, size - 1) or y in (0, size - 1))
                     found.append(
                         (
                             tuple(x * size + y for x, y in cells),
                             tuple(x * size + y for x, y in ring),
-                            border / length,
                         )
                     )
             if length == 1:
@@ -70,12 +72,53 @@ def _positions(size, length):
     return _POSITIONS[key]
 
 
-def _clusters(size, flat):
-    """Groups of orthogonally connected HIT cells: each belongs to one unfinished ship."""
+def _opening_heat(size, fleet):
+    """How many positions of the whole fleet cover each cell on an empty board."""
+    heat = [0] * (size * size)
+    for length in fleet:
+        for cells, _ in _positions(size, length):
+            for i in cells:
+                heat[i] += 1
+    return heat
+
+
+def _models(size, fleet):
+    """For each ship length, the probability of each of its positions under "even" and
+    under "hiding"; and, for each cell, how likely it holds a ship under each model."""
+    key = (size, tuple(sorted(fleet, reverse=True)))
+    if key not in _MODELS:
+        opening = _opening_heat(size, fleet)
+        weights = {}
+        for length in set(fleet):
+            positions = _positions(size, length)
+            exposure = [sum(opening[i] for i in cells) / length for cells, _ in positions]
+            low, high = min(exposure), max(exposure)
+            spread = (high - low) or 1.0
+            hide = [math.exp(-HIDING_STRENGTH * (e - low) / spread) for e in exposure]
+            total = sum(hide)
+            weights[length] = (
+                [1.0 / len(positions)] * len(positions),
+                [h / total for h in hide],
+            )
+        occupancy = ([0.0] * (size * size), [0.0] * (size * size))
+        for length in fleet:
+            for k, (cells, _) in enumerate(_positions(size, length)):
+                for model in (0, 1):
+                    for i in cells:
+                        occupancy[model][i] += weights[length][model][k]
+        # a probability, not an expected count: keep it inside (0, 1)
+        occupancy = tuple([min(max(p, 1e-6), 1 - 1e-6) for p in occ] for occ in occupancy)
+        _MODELS[key] = (weights, occupancy)
+    return _MODELS[key]
+
+
+def _clusters(size, flat, state):
+    """Groups of orthogonally connected cells in ``state`` (HIT: one unfinished ship each;
+    SUNK: one sunk ship each, since ships never touch)."""
     cluster = [-1] * (size * size)
     count = 0
-    for start, state in enumerate(flat):
-        if state != HIT or cluster[start] != -1:
+    for start, value in enumerate(flat):
+        if value != state or cluster[start] != -1:
             continue
         cluster[start] = count
         stack = [start]
@@ -88,11 +131,23 @@ def _clusters(size, flat):
                 i - 1 if c else -1,
                 i + 1 if c < size - 1 else -1,
             ):
-                if j >= 0 and flat[j] == HIT and cluster[j] == -1:
+                if j >= 0 and flat[j] == state and cluster[j] == -1:
                     cluster[j] = count
                     stack.append(j)
         count += 1
     return cluster, count
+
+
+def whole_fleet(view):
+    """The fleet the game started with: ships still afloat plus every sunk ship."""
+    size = view["size"]
+    flat = [state for row in view["cells"] for state in row]
+    cluster, count = _clusters(size, flat, SUNK)
+    sunk = [0] * count
+    for k in cluster:
+        if k >= 0:
+            sunk[k] += 1
+    return sorted(list(view["remaining"]) + sunk, reverse=True)
 
 
 def _blocked(size, flat):
@@ -117,20 +172,25 @@ def _blocked(size, flat):
     return blocked
 
 
-def heat_map(view, edge_weight=0.0):
+def heat_map(view, belief=0.0):
     """Weighted count of legal positions covering each cell (a flat list), and whether
-    some ship is hit but not yet sunk (then only positions through those hits count)."""
+    some ship is hit but not yet sunk (then only positions through those hits count).
+
+    ``belief`` is how likely the rival hides (0 counts every position the same, as "hard")."""
     size = view["size"]
     flat = [state for row in view["cells"] for state in row]
+    weights, _ = _models(size, whole_fleet(view))
     blocked = _blocked(size, flat)
-    cluster, clusters = _clusters(size, flat)
+    cluster, clusters = _clusters(size, flat, HIT)
     sizes = [0] * clusters
     for k in cluster:
         if k >= 0:
             sizes[k] += 1
     heat = [0.0] * (size * size)
     for length in view["remaining"]:
-        for cells, ring, border in _positions(size, length):
+        even, hide = weights[length]
+        scale = len(even)  # so that with belief 0 every position weighs exactly 1
+        for k, (cells, ring) in enumerate(_positions(size, length)):
             if any(blocked[i] for i in cells):
                 continue
             if clusters:
@@ -138,34 +198,38 @@ def heat_map(view, edge_weight=0.0):
                 if not covered:
                     continue
                 # it must hold each hit group it touches entirely, and brush past none
-                if sum(sizes[k] for k in covered) != sum(1 for i in cells if cluster[i] >= 0):
+                if sum(sizes[g] for g in covered) != sum(1 for i in cells if cluster[i] >= 0):
                     continue
                 if any(cluster[j] >= 0 for j in ring):
                     continue
-            weight = math.exp(edge_weight * border) if edge_weight else 1.0
+            weight = scale * ((1 - belief) * even[k] + belief * hide[k])
             for i in cells:
                 if flat[i] == UNKNOWN:
                     heat[i] += weight
     return heat, clusters > 0
 
 
-def hiding_belief(view, prior=PRIOR_HIDING):
-    """How likely the rival hides along the edges, from the ship cells uncovered so far."""
+def hiding_belief(view, prior=None):
+    """How likely the rival hides where hunters look least, from every cell uncovered so
+    far: a ship cell where the hiding model expected one, or water where it expected none,
+    makes "hiding" more likely, and the other way round."""
     size = view["size"]
-    odds = prior / (1 - prior)
+    _, (even, hide) = _models(size, whole_fleet(view))
+    prior = PRIOR_HIDING if prior is None else prior
+    log_odds = math.log(prior / (1 - prior))
     for r, row in enumerate(view["cells"]):
         for c, state in enumerate(row):
+            i = r * size + c
             if state in (HIT, SUNK):
-                on_border = r in (0, size - 1) or c in (0, size - 1)
-                if on_border:
-                    odds *= BORDER_IF_HIDING / BORDER_IF_EVEN
-                else:
-                    odds *= (1 - BORDER_IF_HIDING) / (1 - BORDER_IF_EVEN)
-    return odds / (1 + odds)
+                log_odds += EVIDENCE_WEIGHT * math.log(hide[i] / even[i])
+            elif state == MISS:
+                log_odds += EVIDENCE_WEIGHT * math.log((1 - hide[i]) / (1 - even[i]))
+    log_odds = max(-30.0, min(30.0, log_odds))
+    return 1 / (1 + math.exp(-log_odds))
 
 
 class LuciaBot(Player):
-    """Probability hunter with the no-touch rule; learns whether the rival hides on the edges."""
+    """Probability hunter with the no-touch rule; learns whether the rival hides."""
 
     @classmethod
     def get_name(cls):
@@ -179,7 +243,7 @@ class LuciaBot(Player):
     def get_description(cls):
         return (
             "Counts every ship position the no-touch rule allows; learns during the game "
-            "whether you hide along the edges. Fleet hidden, never the same."
+            "whether you hide where hunters look least. Fleet hidden, never the same."
         )
 
     @classmethod
@@ -194,15 +258,10 @@ class LuciaBot(Player):
         self.rng = random.Random(seed)
 
     def choose_placement(self, board_size, fleet):
-        empty = {
-            "size": board_size,
-            "cells": [[UNKNOWN] * board_size for _ in range(board_size)],
-            "remaining": sorted(fleet, reverse=True),
-        }
-        opening, _ = heat_map(empty)
+        opening = _opening_heat(board_size, fleet)
 
         def exposure(placement):
-            total = 0.0
+            total = 0
             for length, (row, col, orientation) in zip(fleet, placement, strict=True):
                 for k in range(length):
                     r, c = (row, col + k) if orientation == "H" else (row + k, col)
@@ -214,13 +273,14 @@ class LuciaBot(Player):
         ]
         scores = [exposure(p) for p in candidates]
         low = min(scores)
-        weights = [math.exp(-(s - low) / PLACEMENT_SOFTNESS) for s in scores]
+        unit = max(1.0, sum(opening) / (board_size * board_size))  # one average cell
+        weights = [math.exp(-(s - low) / (PLACEMENT_SOFTNESS * unit)) for s in scores]
         return self.rng.choices(candidates, weights)[0]
 
     def choose_shot(self, view):
         size = view["size"]
         belief = hiding_belief(view)
-        heat, _ = heat_map(view, EDGE_WEIGHT * belief)
+        heat, _ = heat_map(view, belief)
         flat = [state for row in view["cells"] for state in row]
         options = [i for i, state in enumerate(flat) if state == UNKNOWN]
         best = max(heat[i] for i in options)

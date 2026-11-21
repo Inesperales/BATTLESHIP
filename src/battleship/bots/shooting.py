@@ -37,6 +37,28 @@ def _orthogonal(size: int, cell: Cell) -> list[Cell]:
     return [c for c in around if in_bounds(size, c)]
 
 
+def random_target_shot(view: View, rng: random.Random) -> Cell:
+    """A beginner: shoot at random; after a hit, try a random unshot cell next to it.
+
+    It finishes the ships it finds, but hunts blindly (no parity) and never reasons about
+    the no-touch rule, so it wastes shots that ``hunt_target_shot`` would save.
+    """
+    size, cells = view["size"], view["cells"]
+    around_hits = sorted(
+        {
+            other
+            for r in range(size)
+            for c in range(size)
+            if cells[r][c] == HIT
+            for other in _orthogonal(size, (r, c))
+            if cells[other[0]][other[1]] == UNKNOWN
+        }
+    )
+    if around_hits:
+        return rng.choice(around_hits)
+    return random_shot(view, rng)
+
+
 def hit_clusters(view: View) -> list[list[Cell]]:
     """Groups of orthogonally connected HIT cells, in row-major order.
 

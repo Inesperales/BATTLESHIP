@@ -62,6 +62,7 @@ shows it. You may keep state in `self` if you want to.
 |--------|------|
 | `random_shot(view, rng)` | any unshot cell |
 | `scan_shot(view)` | the first unshot cell, row by row |
+| `random_target_shot(view, rng)` | at random; after a hit, a cell next to it (easy) |
 | `hunt_target_shot(view, rng)` | parity hunt, then finish every hit ship |
 | `probability_shot(view, rng)` | the cell covered by the most legal ship positions; returns `(cell, heatmap)` |
 | `probability_map(view)`, `hit_clusters(view)` | building blocks for your own ideas |

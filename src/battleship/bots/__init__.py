@@ -12,6 +12,7 @@ from battleship.bots.shooting import (
     probability_map,
     probability_shot,
     random_shot,
+    random_target_shot,
     scan_shot,
 )
 
@@ -23,6 +24,7 @@ __all__ = [
     "probability_shot",
     "random_fleet",
     "random_shot",
+    "random_target_shot",
     "scan_shot",
     "stealth_fleet",
 ]
