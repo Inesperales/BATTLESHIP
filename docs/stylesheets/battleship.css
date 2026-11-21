@@ -280,9 +280,58 @@ html:lang(en) .md-header__topic:first-child::after {
   font-size: 0.8em;
 }
 
+/* code on light parchment, inked in dark, contrasted colours (all above 4.5:1) */
+[data-md-color-scheme="battleship"] {
+  --md-code-hl-color: rgba(200, 150, 64, 0.35);
+  --md-code-hl-keyword-color: #8a1f16;
+  --md-code-hl-string-color: #2f6b2a;
+  --md-code-hl-name-color: #2a1406;
+  --md-code-hl-function-color: #6a3d9a;
+  --md-code-hl-constant-color: #0b5ea8;
+  --md-code-hl-number-color: #0b5ea8;
+  --md-code-hl-special-color: #a8461f;
+  --md-code-hl-operator-color: #5a3418;
+  --md-code-hl-punctuation-color: #5a3418;
+  --md-code-hl-comment-color: #7a6248;
+  --md-code-hl-generic-color: #5a3418;
+  --md-code-hl-variable-color: #2a1406;
+}
+
 .md-typeset pre > code {
-  background: rgba(60, 30, 10, 0.9);
-  color: #f6e5c2;
+  color: #2a1406;
+  background: #fbf4e2;
+  border: 1px solid #c9ab72;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 2px 6px rgba(90, 55, 20, 0.15);
+}
+
+.md-typeset .highlight .c,
+.md-typeset .highlight .c1,
+.md-typeset .highlight .cm {
+  font-style: italic;
+}
+
+/* a file name above a block: a darker strip of the same parchment */
+.md-typeset .highlight span.filename {
+  color: var(--bs-ink);
+  background: #ead7aa;
+  border: 1px solid #c9ab72;
+  border-bottom: 0;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 0.85rem;
+}
+
+.md-typeset .highlight span.filename + pre > code {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.md-typeset .md-clipboard {
+  color: var(--bs-ink-soft);
+}
+
+.md-typeset .md-clipboard:hover {
+  color: var(--bs-red);
 }
 
 .md-typeset .headerlink {
@@ -528,6 +577,9 @@ html:lang(en) .md-header__topic:first-child::after {
     border: 2px solid #5a2e12;
     border-radius: 6px;
     box-shadow: 0 0 0 2px rgba(200, 150, 64, 0.7), 0 12px 26px rgba(0, 0, 0, 0.5);
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(107, 69, 32, 0.45) transparent;
   }
 
   /* a compass rose drawn at the bottom of the card */
