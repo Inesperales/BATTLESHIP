@@ -6,3 +6,5 @@ players:
     class: LuciaBot
   - file: ines_bot.py
     class: InesBot
+  - file: kraken_bot.py
+    class: KrakenBot

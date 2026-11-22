@@ -24,18 +24,18 @@
       "description": "Counts every ship position the no-touch rule allows; learns during the game whether you hide where hunters look least. Fleet hidden, never the same.",
       "icon": "🐬",
       "source": "custom/lucia_bot.py",
-      "points": 341.0,
-      "elo": 2028.5,
-      "played": 400,
-      "wins": 341,
-      "losses": 59,
+      "points": 421.0,
+      "elo": 2003.9,
+      "played": 500,
+      "wins": 421,
+      "losses": 79,
       "draws": 0,
       "forfeits": 0,
       "forfeit_reasons": {},
-      "wins_first": 174,
-      "wins_second": 167,
-      "avg_shots_to_win": 37.7,
-      "hit_rate": 0.441,
+      "wins_first": 215,
+      "wins_second": 206,
+      "avg_shots_to_win": 37.8,
+      "hit_rate": 0.438,
       "rank": 1
     },
     {
@@ -46,18 +46,18 @@
       "description": "Hides its fleet where hunters look least; shoots the most likely cell.",
       "icon": "🧠",
       "source": "builtin/hard_bot.py",
-      "points": 290.0,
-      "elo": 1905.8,
-      "played": 400,
-      "wins": 290,
-      "losses": 110,
+      "points": 376.0,
+      "elo": 1914.9,
+      "played": 500,
+      "wins": 376,
+      "losses": 124,
       "draws": 0,
       "forfeits": 0,
       "forfeit_reasons": {},
-      "wins_first": 147,
-      "wins_second": 143,
-      "avg_shots_to_win": 38.0,
-      "hit_rate": 0.422,
+      "wins_first": 192,
+      "wins_second": 184,
+      "avg_shots_to_win": 37.5,
+      "hit_rate": 0.429,
       "rank": 2
     },
     {
@@ -68,19 +68,41 @@
       "description": "Random fleet; hunts on a parity grid, finishes every ship it hits, skips proven water.",
       "icon": "🎯",
       "source": "builtin/medium_bot.py",
-      "points": 259.0,
-      "elo": 1833.2,
-      "played": 400,
-      "wins": 259,
-      "losses": 141,
+      "points": 304.0,
+      "elo": 1782.2,
+      "played": 500,
+      "wins": 304,
+      "losses": 196,
       "draws": 0,
       "forfeits": 0,
       "forfeit_reasons": {},
-      "wins_first": 132,
-      "wins_second": 127,
-      "avg_shots_to_win": 42.8,
-      "hit_rate": 0.382,
+      "wins_first": 157,
+      "wins_second": 147,
+      "avg_shots_to_win": 42.7,
+      "hit_rate": 0.38,
       "rank": 3
+    },
+    {
+      "name": "kraken",
+      "authors": [
+        "Equipo CONECTA_CUATRO"
+      ],
+      "description": "Shoots where the biggest ship afloat has the most room; finishes what it hits.",
+      "icon": "🦑",
+      "source": "custom/kraken_bot.py",
+      "points": 287.0,
+      "elo": 1750.0,
+      "played": 500,
+      "wins": 287,
+      "losses": 213,
+      "draws": 0,
+      "forfeits": 0,
+      "forfeit_reasons": {},
+      "wins_first": 149,
+      "wins_second": 138,
+      "avg_shots_to_win": 41.8,
+      "hit_rate": 0.379,
+      "rank": 4
     },
     {
       "name": "easy",
@@ -90,19 +112,19 @@
       "description": "Random fleet; shoots at random, and after a hit tries the cells around it.",
       "icon": "🐣",
       "source": "builtin/easy_bot.py",
-      "points": 110.0,
-      "elo": 1335.5,
-      "played": 400,
-      "wins": 110,
-      "losses": 290,
+      "points": 112.0,
+      "elo": 1245.3,
+      "played": 500,
+      "wins": 112,
+      "losses": 388,
       "draws": 0,
       "forfeits": 0,
       "forfeit_reasons": {},
-      "wins_first": 56,
-      "wins_second": 54,
-      "avg_shots_to_win": 66.7,
-      "hit_rate": 0.268,
-      "rank": 4
+      "wins_first": 57,
+      "wins_second": 55,
+      "avg_shots_to_win": 66.3,
+      "hit_rate": 0.266,
+      "rank": 5
     },
     {
       "name": "random",
@@ -113,18 +135,18 @@
       "icon": "🎲",
       "source": "builtin/random_bot.py",
       "points": 0.0,
-      "elo": 397.0,
-      "played": 400,
+      "elo": 303.6,
+      "played": 500,
       "wins": 0,
-      "losses": 400,
+      "losses": 500,
       "draws": 0,
       "forfeits": 0,
       "forfeit_reasons": {},
       "wins_first": 0,
       "wins_second": 0,
       "avg_shots_to_win": null,
-      "hit_rate": 0.168,
-      "rank": 5
+      "hit_rate": 0.169,
+      "rank": 6
     }
   ],
   "pairs": [
@@ -133,6 +155,13 @@
       "b": "hard",
       "wins_a": 0,
       "wins_b": 100,
+      "draws": 0
+    },
+    {
+      "a": "easy",
+      "b": "kraken",
+      "wins_a": 2,
+      "wins_b": 98,
       "draws": 0
     },
     {
@@ -158,6 +187,13 @@
     },
     {
       "a": "hard",
+      "b": "kraken",
+      "wins_a": 86,
+      "wins_b": 14,
+      "draws": 0
+    },
+    {
+      "a": "hard",
       "b": "lucia",
       "wins_a": 20,
       "wins_b": 80,
@@ -172,6 +208,27 @@
     },
     {
       "a": "hard",
+      "b": "random",
+      "wins_a": 100,
+      "wins_b": 0,
+      "draws": 0
+    },
+    {
+      "a": "kraken",
+      "b": "lucia",
+      "wins_a": 20,
+      "wins_b": 80,
+      "draws": 0
+    },
+    {
+      "a": "kraken",
+      "b": "medium",
+      "wins_a": 55,
+      "wins_b": 45,
+      "draws": 0
+    },
+    {
+      "a": "kraken",
       "b": "random",
       "wins_a": 100,
       "wins_b": 0,
@@ -200,5 +257,5 @@
     }
   ],
   "rejected": [],
-  "generated_at": "2026-11-21T11:15:57+00:00"
+  "generated_at": "2026-11-22T16:59:44+00:00"
 }
