@@ -17,11 +17,6 @@ Battleship Arena incluye:
 Las reglas y todos los bots se escriben **una sola vez, en Python**. El mismo código juega
 el torneo en la CI y la partida en tu navegador, gracias a [Pyodide](https://pyodide.org).
 
-El proyecto parte de [nim-arena](https://github.com/jparisu/nim-arena), de jparisu (MIT):
-reutilizamos su arquitectura (API de jugador, manifiesto, torneo, CI, web con Pyodide,
-documentación) y encima escribimos un juego, unos bots y una interfaz nuevos. Qué viene de
-dónde está en [docs/ENTENDER.md](docs/ENTENDER.md#5-qué-viene-de-nim-arena-y-qué-es-nuestro).
-
 **▶ Jugar: <https://carmencuerva.github.io/BATTLESHIP/>** · **📖 Documentación:
 <https://carmencuerva.github.io/BATTLESHIP/docs/es/>**
 
