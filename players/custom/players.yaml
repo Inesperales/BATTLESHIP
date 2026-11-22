@@ -4,3 +4,5 @@
 players:
   - file: lucia_bot.py
     class: LuciaBot
+  - file: kraken_bot.py
+    class: KrakenBot
