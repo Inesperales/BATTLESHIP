@@ -104,6 +104,3 @@ class KrakenBot(Player):
         longest = max(view["remaining"], default=1)
         fits = [cell for cell in open_cells if self.room(view, water, cell) >= longest]
         return self.best(view, water, fits or open_cells)
-        
-        - file: kraken_bot.py
-        class: KrakenBot
